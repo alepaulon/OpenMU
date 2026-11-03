@@ -83,6 +83,50 @@ internal class IllusionTempleDataTest
     }
 
     /// <summary>
+    /// Tests that the update doesn't create a new spawn with the id of an obsolete statue spawn which it
+    /// removes. Both have the ids of the spawn numbers from 100 on a database which was created before
+    /// the event; with Entity Framework, a removed object and a new one with the same id in the same
+    /// context fail the save ("another instance with the same key value is already being tracked"),
+    /// so that the update could never be applied to such a database.
+    /// </summary>
+    /// <returns>The task.</returns>
+    [Test]
+    public async Task UpdateReusesTheIdsOfObsoleteSpawnsAsync()
+    {
+        var contextProvider = new InMemoryPersistenceContextProvider();
+        var dataInitialization = new VersionSeasonSix.DataInitialization(contextProvider, new NullLoggerFactory());
+        await dataInitialization.CreateInitialDataAsync(1, true).ConfigureAwait(false);
+
+        using var context = contextProvider.CreateNewContext();
+        var gameConfiguration = (await context.GetAsync<GameConfiguration>().ConfigureAwait(false)).First();
+
+        RevertToStateBeforeTheEvent(gameConfiguration);
+        var obsoleteSpawns = gameConfiguration.Maps
+            .Where(map => TempleMapNumbers.Contains(map.Number))
+            .SelectMany(map => map.MonsterSpawns.Select(spawn => (Map: map, Spawn: spawn)))
+            .ToList();
+        Assert.That(obsoleteSpawns, Is.Not.Empty);
+
+        await new IllusionTempleDataUpdatePlugIn().ApplyUpdateAsync(context, gameConfiguration).ConfigureAwait(false);
+
+        foreach (var (map, obsolete) in obsoleteSpawns)
+        {
+            var spawnsWithTheId = map.MonsterSpawns.Where(spawn => spawn.GetId() == obsolete.GetId()).ToList();
+            Assert.That(
+                spawnsWithTheId.All(spawn => ReferenceEquals(spawn, obsolete)),
+                Is.True,
+                $"map {map.Number}: a new spawn got the id {obsolete.GetId()} of a removed one");
+        }
+
+        foreach (var map in gameConfiguration.Maps.Where(map => TempleMapNumbers.Contains(map.Number)))
+        {
+            Assert.That(map.MonsterSpawns.Select(spawn => spawn.GetId()), Is.Unique, $"map {map.Number}: spawn ids");
+        }
+
+        AssertEventData(gameConfiguration);
+    }
+
+    /// <summary>
     /// Tests that the update brings the minimum player count of an already configured event up to a
     /// usable value. The field was added to <see cref="MiniGameDefinition"/> by this event, so it
     /// reads as 0 on every database which got the definitions from an earlier version of the update.
@@ -167,11 +211,14 @@ internal class IllusionTempleDataTest
             }
 
             // The arena used to be littered with "Captured Stone Statue" spawns, which were based on
-            // the wrong NPC numbers and had no function.
+            // the wrong NPC numbers and had no function. They had the ids of the spawn numbers from 100,
+            // the same ones the update gives to the new spawns.
+            short spawnNumber = 100;
             foreach (var obsolete in gameConfiguration.Monsters.Where(monster => monster.Number is >= 658 and <= 668))
             {
                 var area = new MUnique.OpenMU.Persistence.BasicModel.MonsterSpawnArea
                 {
+                    Id = GuidHelper.CreateGuid<MonsterSpawnArea>(map.Number, spawnNumber++),
                     GameMap = map,
                     MonsterDefinition = obsolete,
                     Quantity = 1,

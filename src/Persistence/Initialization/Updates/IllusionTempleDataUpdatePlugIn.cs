@@ -339,8 +339,6 @@ public class IllusionTempleDataUpdatePlugIn : UpdatePlugInBase
                 continue;
             }
 
-            this.RemoveObsoleteStatueSpawns(map);
-
             if (map.MonsterSpawns.Any(spawn => spawn.MonsterDefinition == stoneStatue))
             {
                 continue;
@@ -376,6 +374,13 @@ public class IllusionTempleDataUpdatePlugIn : UpdatePlugInBase
                 this.AddSpawn(context, map, spawnNumber++, monsterDefinition, x, y, SpawnTrigger.AutomaticDuringEvent);
             }
         }
+
+        // Only after adding the new spawns: the obsolete ones use the same spawn numbers (from 100),
+        // and AddSpawn takes them over instead of creating a second object with the same id.
+        foreach (var map in gameConfiguration.Maps.Where(m => Temples.Any(temple => temple.MapNumber == m.Number)))
+        {
+            this.RemoveObsoleteStatueSpawns(map);
+        }
     }
 
     /// <summary>
@@ -398,8 +403,19 @@ public class IllusionTempleDataUpdatePlugIn : UpdatePlugInBase
 
     private void AddSpawn(IContext context, GameMapDefinition map, short spawnNumber, MonsterDefinition monsterDefinition, byte x, byte y, SpawnTrigger spawnTrigger)
     {
-        var area = context.CreateNew<MonsterSpawnArea>();
-        area.SetGuid(map.Number, spawnNumber);
+        // A database created before this update has the obsolete statue spawns with the same ids
+        // (map number, spawn number from 100). Removing one of them and creating a new object with its
+        // id in the same context fails when saving ("another instance with the same key value is
+        // already being tracked"), so an existing spawn with the id is reused instead.
+        var id = GuidHelper.CreateGuid<MonsterSpawnArea>(map.Number, spawnNumber);
+        var area = map.MonsterSpawns.FirstOrDefault(spawn => spawn.GetId() == id);
+        if (area is null)
+        {
+            area = context.CreateNew<MonsterSpawnArea>();
+            area.SetGuid(id);
+            map.MonsterSpawns.Add(area);
+        }
+
         area.GameMap = map;
         area.MonsterDefinition = monsterDefinition;
         area.Quantity = 1;
@@ -409,7 +425,6 @@ public class IllusionTempleDataUpdatePlugIn : UpdatePlugInBase
         area.X2 = x;
         area.Y1 = y;
         area.Y2 = y;
-        map.MonsterSpawns.Add(area);
     }
 
     /// <summary>
