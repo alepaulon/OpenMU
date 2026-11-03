@@ -8,6 +8,7 @@ using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 using MUnique.OpenMU.DataModel.Configuration;
 using MUnique.OpenMU.DataModel.Configuration.Items;
+using MUnique.OpenMU.GameLogic.PlayerActions.Trade;
 using MUnique.OpenMU.GameLogic.PlugIns;
 using MUnique.OpenMU.GameLogic.Views.Inventory;
 using MUnique.OpenMU.GameLogic.Views.Trade;
@@ -220,6 +221,9 @@ public class MoveItemAction
             {
                 await tradingPartner.InvokeViewPlugInAsync<ITradeItemAppearPlugIn>(p => p.TradeItemAppearAsync(toSlot, item)).ConfigureAwait(false);
             }
+
+            // The offer changed, so a previous acceptance of the trading partner is no longer valid.
+            await player.ResetTradeButtonsAfterOfferChangeAsync().ConfigureAwait(false);
         }
 
         return true;

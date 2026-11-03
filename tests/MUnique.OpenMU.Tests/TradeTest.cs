@@ -220,6 +220,47 @@ public class TradeTest
         Assert.That(trader1.BackupInventory, Is.Null);
     }
 
+    /// <summary>
+    /// Tests that a change of the traded items resets the acceptance of the trading partner,
+    /// so that the trade isn't finished with items which the partner didn't accept.
+    /// </summary>
+    /// <param name="fromSlot">The slot from which an item is moved after the partner accepted.</param>
+    /// <param name="fromStorage">The storage from which an item is moved after the partner accepted.</param>
+    /// <param name="toSlot">The slot to which an item is moved after the partner accepted.</param>
+    /// <param name="toStorage">The storage to which an item is moved after the partner accepted.</param>
+    [TestCase((byte)21, Storages.Inventory, (byte)2, Storages.Trade, Description = "Item added to the trade")]
+    [TestCase((byte)0, Storages.Trade, (byte)20, Storages.Inventory, Description = "Item removed from the trade")]
+    [TestCase((byte)0, Storages.Trade, (byte)4, Storages.Trade, Description = "Item moved within the trade")]
+    public async ValueTask TradeItemChangeResetsAcceptanceOfPartnerAsync(byte fromSlot, Storages fromStorage, byte toSlot, Storages toStorage)
+    {
+        var trader1 = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        var trader2 = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        var itemMoveAction = new MoveItemAction();
+        var tradeButtonHandler = new TradeButtonAction();
+
+        await trader1.Inventory!.AddItemAsync(20, this.GetItem()).ConfigureAwait(false);
+        await trader1.Inventory.AddItemAsync(21, this.GetItem()).ConfigureAwait(false);
+        await new TradeRequestAction().RequestTradeAsync(trader1, trader2).ConfigureAwait(false);
+        await new TradeAcceptAction().HandleTradeAcceptAsync(trader2, true).ConfigureAwait(false);
+        await itemMoveAction.MoveItemAsync(trader1, 20, Storages.Inventory, 0, Storages.Trade).ConfigureAwait(false);
+
+        // The partner accepts the offer, then the offer changes.
+        await tradeButtonHandler.TradeButtonChangedAsync(trader2, TradeButtonState.Checked).ConfigureAwait(false);
+        Assert.That(trader2.PlayerState.CurrentState, Is.EqualTo(PlayerState.TradeButtonPressed));
+        var partnerButtonView = Mock.Get(trader2.ViewPlugIns.GetPlugIn<IChangeTradeButtonStatePlugIn>()!);
+        partnerButtonView.Invocations.Clear();
+        await itemMoveAction.MoveItemAsync(trader1, fromSlot, fromStorage, toSlot, toStorage).ConfigureAwait(false);
+
+        Assert.That(trader2.PlayerState.CurrentState, Is.EqualTo(PlayerState.TradeOpened));
+        partnerButtonView.Verify(view => view.ChangeTradeButtonStateAsync(TradeButtonState.Red), Times.Once);
+
+        // Accepting the changed offer alone must not finish the trade.
+        await tradeButtonHandler.TradeButtonChangedAsync(trader1, TradeButtonState.Checked).ConfigureAwait(false);
+        Assert.That(trader1.PlayerState.CurrentState, Is.EqualTo(PlayerState.TradeButtonPressed));
+        Assert.That(trader2.Inventory!.ItemStorage.Items, Is.Empty);
+        Mock.Get(trader2.ViewPlugIns.GetPlugIn<ITradeFinishedPlugIn>()!).Verify(view => view.TradeFinishedAsync(It.IsAny<TradeResult>()), Times.Never);
+    }
+
     private Item GetItem()
     {
         var item = new Mock<Item>();

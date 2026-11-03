@@ -39,13 +39,12 @@ public class TradeMoneyAction
         await player.InvokeViewPlugInAsync<IUpdateMoneyPlugIn>(p => p.UpdateMoneyAsync()).ConfigureAwait(false);
         await player.InvokeViewPlugInAsync<IRequestedTradeMoneyHasBeenSetPlugIn>(p => p.RequestedTradeMoneyHasBeenSetAsync()).ConfigureAwait(false);
 
-        await player.InvokeViewPlugInAsync<IChangeTradeButtonStatePlugIn>(p => p.ChangeTradeButtonStateAsync(TradeButtonState.Red)).ConfigureAwait(false);
         if (player.TradingPartner is { } tradingPartner)
         {
             // Send the Money Packet to the Trading Partner
             await tradingPartner.InvokeViewPlugInAsync<ISetTradeMoneyPlugIn>(p => p.SetTradeMoneyAsync(moneyAmount)).ConfigureAwait(false);
-            await tradingPartner.PlayerState.TryAdvanceToAsync(PlayerState.TradeOpened).ConfigureAwait(false);
-            await tradingPartner.InvokeViewPlugInAsync<IChangeTradeButtonStatePlugIn>(p => p.ChangeTradeButtonStateAsync(TradeButtonState.Red)).ConfigureAwait(false);
         }
+
+        await player.ResetTradeButtonsAfterOfferChangeAsync().ConfigureAwait(false);
     }
 }
