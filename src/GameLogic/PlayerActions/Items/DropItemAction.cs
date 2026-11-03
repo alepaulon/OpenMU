@@ -31,6 +31,15 @@ public class DropItemAction
             return;
         }
 
+        if (player.PlayerState.CurrentState != PlayerState.EnteredWorld)
+        {
+            // E.g. while a trade or a crafting dialog is open. The game client doesn't allow it, and the inventory
+            // backup of a crafting dialog would restore the dropped item when the player disconnects.
+            player.Logger.LogWarning("Player {0} tried to drop {1} in state {2}, which isn't allowed.", player, item, player.PlayerState.CurrentState);
+            await player.InvokeViewPlugInAsync<IItemDropResultPlugIn>(p => p.ItemDropResultAsync(slot, false)).ConfigureAwait(false);
+            return;
+        }
+
         if (player.IsTemplatePlayer)
         {
             player.Logger.LogWarning("Can't drop items of a template account.");

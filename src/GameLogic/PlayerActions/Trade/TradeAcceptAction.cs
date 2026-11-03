@@ -67,8 +67,7 @@ public class TradeAcceptAction : BaseTradeAction
         await trader.SaveProgressAsync().ConfigureAwait(false);
 
         // Items which another window (e.g. the chaos machine) left in the temporary storage go back to
-        // the inventory first. The trade uses the same storage, so they would be offered in the trade,
-        // and lost when it is cancelled, because a cancel restores the inventory backup made below.
+        // the inventory first. The trade uses the same storage, so they would be offered in the trade.
         if (trader.TemporaryStorage is { } temporaryStorage
             && temporaryStorage.Items.Any()
             && !await trader.Inventory!.TryTakeAllAsync(temporaryStorage).ConfigureAwait(false))
@@ -76,7 +75,9 @@ public class TradeAcceptAction : BaseTradeAction
             trader.Logger.LogWarning("Could not return the items of the temporary storage of {trader} to the inventory before opening a trade.", trader);
         }
 
-        trader.BackupInventory = new BackupItemStorage(trader.Inventory!.ItemStorage);
+        // No backup of the inventory is made: a cancelled trade returns the offer instead of restoring the
+        // inventory (see BaseTradeAction.CancelTradeAsync).
+        trader.BackupInventory = null;
         trader.TradingMoney = 0;
         await trader.InvokeViewPlugInAsync<IShowTradeRequestAnswerPlugIn>(p => p.ShowTradeRequestAnswerAsync(true)).ConfigureAwait(false);
     }

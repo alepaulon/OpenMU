@@ -182,42 +182,136 @@ public class TradeTest
     }
 
     /// <summary>
-    /// Tests that a trade cancellation does not abort restoring all valid items when one backup item is invalid.
+    /// Tests that a cancelled trade returns the offered items and the offered money to the trader.
     /// </summary>
     [Test]
-    public async ValueTask TradeCancelIgnoresInvalidBackupItemsAsync()
+    public async ValueTask TradeCancelReturnsTheOfferAsync()
     {
-        var trader1 = this.CreateTrader(PlayerState.TradeOpened);
-        var trader2 = this.CreateTrader(PlayerState.TradeOpened);
-        Mock.Get(trader1).Setup(t => t.Logger).Returns(NullLogger.Instance);
-        Mock.Get(trader2).Setup(t => t.Logger).Returns(NullLogger.Instance);
-        trader1.TradingPartner = trader2;
-        trader2.TradingPartner = trader1;
+        var (trader1, trader2) = await this.CreateTradersAsync().ConfigureAwait(false);
+        trader1.Money = 1000;
+        var item = this.GetItem();
+        await trader1.Inventory!.AddItemAsync(20, item).ConfigureAwait(false);
+        await this.OpenTradeAsync(trader1, trader2).ConfigureAwait(false);
+        await new MoveItemAction().MoveItemAsync(trader1, 20, Storages.Inventory, 0, Storages.Trade).ConfigureAwait(false);
+        await new TradeMoneyAction().TradeMoneyAsync(trader1, 300).ConfigureAwait(false);
+        Assert.That(trader1.Money, Is.EqualTo(700));
+        Assert.That(trader1.TradingMoney, Is.EqualTo(300));
 
-        var brokenItem = new Mock<Item>();
-        brokenItem.SetupAllProperties();
-        brokenItem.Object.ItemSlot = 20;
-
-        var validItem = new Mock<Item>();
-        validItem.SetupAllProperties();
-        validItem.Object.ItemSlot = 21;
-
-        trader1.BackupInventory = new BackupItemStorage(trader1.Inventory!.ItemStorage)
-        {
-            Items = new List<Item> { brokenItem.Object, validItem.Object },
-        };
-
-        var inventoryMock = Mock.Get(trader1.Inventory!);
-        inventoryMock.Setup(i => i.AddItemAsync(20, brokenItem.Object)).Throws(new InvalidOperationException("broken test item"));
-        inventoryMock.Setup(i => i.AddItemAsync(21, validItem.Object)).Returns(new ValueTask<bool>(true));
-
-        var cancelAction = new TradeCancelAction();
-        await cancelAction.CancelTradeAsync(trader1).ConfigureAwait(false);
+        await new TradeCancelAction().CancelTradeAsync(trader1).ConfigureAwait(false);
 
         Assert.That(trader1.PlayerState.CurrentState, Is.EqualTo(PlayerState.EnteredWorld));
         Assert.That(trader2.PlayerState.CurrentState, Is.EqualTo(PlayerState.EnteredWorld));
-        inventoryMock.Verify(i => i.AddItemAsync(21, validItem.Object), Times.Once);
-        Assert.That(trader1.BackupInventory, Is.Null);
+        Assert.That(trader1.Inventory.ItemStorage.Items, Is.EquivalentTo(new[] { item }));
+        Assert.That(trader1.TemporaryStorage!.Items, Is.Empty);
+        Assert.That(trader1.Money, Is.EqualTo(1000));
+        Assert.That(trader1.TradingMoney, Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Tests that a cancelled trade keeps the changes of the inventory and the money which happened outside
+    /// of the trade while it was open, e.g. an item which was sold in the personal store.
+    /// Rolling back the inventory to its state when the trade was opened would restore such an item,
+    /// which means that it's duplicated.
+    /// </summary>
+    [Test]
+    public async ValueTask TradeCancelKeepsChangesOutsideOfTheTradeAsync()
+    {
+        var (trader1, trader2) = await this.CreateTradersAsync().ConfigureAwait(false);
+        trader1.Money = 1000;
+        var offeredItem = this.GetItem();
+        var soldItem = this.GetItem();
+        await trader1.Inventory!.AddItemAsync(20, offeredItem).ConfigureAwait(false);
+        await trader1.Inventory.AddItemAsync(21, soldItem).ConfigureAwait(false);
+        await this.OpenTradeAsync(trader1, trader2).ConfigureAwait(false);
+        await new MoveItemAction().MoveItemAsync(trader1, 20, Storages.Inventory, 0, Storages.Trade).ConfigureAwait(false);
+
+        // The item leaves the inventory and money is spent, while the trade is open.
+        await trader1.Inventory.RemoveItemAsync(soldItem).ConfigureAwait(false);
+        Assert.That(trader1.TryRemoveMoney(400), Is.True);
+
+        await new TradeCancelAction().CancelTradeAsync(trader1).ConfigureAwait(false);
+
+        Assert.That(trader1.Inventory.ItemStorage.Items, Is.EquivalentTo(new[] { offeredItem }));
+        Assert.That(trader1.Money, Is.EqualTo(600));
+    }
+
+    /// <summary>
+    /// Tests that the items go back to their owners, when the trader who accepted last could take the items
+    /// of the partner, but the partner can't take the items of the trader.
+    /// </summary>
+    [Test]
+    public async ValueTask TradeFailedPartnerInventoryFullReturnsAllItemsAsync()
+    {
+        var (trader1, trader2) = await this.CreateTradersAsync().ConfigureAwait(false);
+        var bigItem = this.GetItem(2, 2);
+        var smallItem = this.GetItem();
+        await trader1.Inventory!.AddItemAsync(20, bigItem).ConfigureAwait(false);
+        await trader2.Inventory!.AddItemAsync(12, smallItem).ConfigureAwait(false);
+
+        // Fill up the inventory of trader2, so that it has just the space of the small item.
+        for (byte i = 13; i < 12 + 64; i++)
+        {
+            await trader2.Inventory.AddItemAsync(i, this.GetItem()).ConfigureAwait(false);
+        }
+
+        await this.OpenTradeAsync(trader1, trader2).ConfigureAwait(false);
+        var itemMoveAction = new MoveItemAction();
+        await itemMoveAction.MoveItemAsync(trader1, 20, Storages.Inventory, 0, Storages.Trade).ConfigureAwait(false);
+        await itemMoveAction.MoveItemAsync(trader2, 12, Storages.Inventory, 0, Storages.Trade).ConfigureAwait(false);
+
+        // trader1 accepts last, so it takes the small item first. Then trader2 can't take the big item.
+        var tradeButtonHandler = new TradeButtonAction();
+        await tradeButtonHandler.TradeButtonChangedAsync(trader2, TradeButtonState.Checked).ConfigureAwait(false);
+        await tradeButtonHandler.TradeButtonChangedAsync(trader1, TradeButtonState.Checked).ConfigureAwait(false);
+
+        Mock.Get(trader1.ViewPlugIns.GetPlugIn<ITradeFinishedPlugIn>()!).Verify(view => view.TradeFinishedAsync(TradeResult.FailedByFullInventory), Times.Once);
+        Assert.That(trader1.Inventory.ItemStorage.Items, Is.EquivalentTo(new[] { bigItem }));
+        Assert.That(trader2.Inventory.ItemStorage.Items, Does.Contain(smallItem));
+        Assert.That(trader2.Inventory.ItemStorage.Items, Does.Not.Contain(bigItem));
+        Assert.That(trader2.Inventory.ItemStorage.Items, Has.Count.EqualTo(64));
+        Assert.That(trader1.TemporaryStorage!.Items, Is.Empty);
+        Assert.That(trader2.TemporaryStorage!.Items, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests that a trade is not finished, when the received money would exceed the maximum inventory money.
+    /// Otherwise, the money of the receiver would overflow.
+    /// </summary>
+    [Test]
+    public async ValueTask TradeFailedMoneyExceedsMaximumAsync()
+    {
+        var (trader1, trader2) = await this.CreateTradersAsync().ConfigureAwait(false);
+        trader1.Money = 1000;
+        trader2.Money = int.MaxValue - 100;
+        await this.OpenTradeAsync(trader1, trader2).ConfigureAwait(false);
+        await new TradeMoneyAction().TradeMoneyAsync(trader1, 500).ConfigureAwait(false);
+
+        var tradeButtonHandler = new TradeButtonAction();
+        await tradeButtonHandler.TradeButtonChangedAsync(trader1, TradeButtonState.Checked).ConfigureAwait(false);
+        await tradeButtonHandler.TradeButtonChangedAsync(trader2, TradeButtonState.Checked).ConfigureAwait(false);
+
+        Mock.Get(trader2.ViewPlugIns.GetPlugIn<ITradeFinishedPlugIn>()!).Verify(view => view.TradeFinishedAsync(TradeResult.FailedByFullInventory), Times.Once);
+        Assert.That(trader1.Money, Is.EqualTo(1000));
+        Assert.That(trader2.Money, Is.EqualTo(int.MaxValue - 100));
+    }
+
+    /// <summary>
+    /// Tests that an item can't be dropped while a trade is open, but afterwards.
+    /// </summary>
+    [Test]
+    public async ValueTask ItemCantBeDroppedWhileTradingAsync()
+    {
+        var (trader1, trader2) = await this.CreateTradersAsync().ConfigureAwait(false);
+        var item = this.GetItem();
+        await trader1.Inventory!.AddItemAsync(20, item).ConfigureAwait(false);
+        await this.OpenTradeAsync(trader1, trader2).ConfigureAwait(false);
+
+        await new DropItemAction().DropItemAsync(trader1, 20, trader1.Position).ConfigureAwait(false);
+        Assert.That(trader1.Inventory.ItemStorage.Items, Does.Contain(item));
+
+        await new TradeCancelAction().CancelTradeAsync(trader1).ConfigureAwait(false);
+        await new DropItemAction().DropItemAsync(trader1, 20, trader1.Position).ConfigureAwait(false);
+        Assert.That(trader1.Inventory.ItemStorage.Items, Does.Not.Contain(item));
     }
 
     /// <summary>
@@ -261,13 +355,30 @@ public class TradeTest
         Mock.Get(trader2.ViewPlugIns.GetPlugIn<ITradeFinishedPlugIn>()!).Verify(view => view.TradeFinishedAsync(It.IsAny<TradeResult>()), Times.Never);
     }
 
-    private Item GetItem()
+    private Item GetItem(byte width = 1, byte height = 1)
     {
         var item = new Mock<Item>();
         item.SetupAllProperties();
-        item.Object.Definition = new ItemDefinition { Width = 1, Height = 1 };
+        item.Object.Definition = new ItemDefinition { Width = width, Height = height };
         item.Setup(i => i.ItemOptions).Returns(new List<ItemOptionLink>());
         return item.Object;
+    }
+
+    private async ValueTask<(Player Trader1, Player Trader2)> CreateTradersAsync()
+    {
+        var trader1 = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        var trader2 = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        trader1.GameContext.Configuration.MaximumInventoryMoney = int.MaxValue;
+        trader2.GameContext.Configuration.MaximumInventoryMoney = int.MaxValue;
+        return (trader1, trader2);
+    }
+
+    private async ValueTask OpenTradeAsync(Player trader1, Player trader2)
+    {
+        await new TradeRequestAction().RequestTradeAsync(trader1, trader2).ConfigureAwait(false);
+        await new TradeAcceptAction().HandleTradeAcceptAsync(trader2, true).ConfigureAwait(false);
+        Assert.That(trader1.PlayerState.CurrentState, Is.EqualTo(PlayerState.TradeOpened));
+        Assert.That(trader2.PlayerState.CurrentState, Is.EqualTo(PlayerState.TradeOpened));
     }
 
     private ITrader CreateTrader(State playerState)

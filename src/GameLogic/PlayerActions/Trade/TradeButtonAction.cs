@@ -91,36 +91,54 @@ public class TradeButtonAction : BaseTradeAction
             return TradeResult.Cancelled;
         }
 
+        if (!CanReceiveMoney(trader, tradingPartner.TradingMoney) || !CanReceiveMoney(tradingPartner, trader.TradingMoney))
+        {
+            (trader as Player)?.Logger.LogWarning(
+                "Trade between {0} and {1} cancelled, because the traded money would exceed the maximum inventory money.",
+                trader.Name,
+                tradingPartner.Name);
+            await this.SendInventoryFullMessagesAsync(trader, tradingPartner).ConfigureAwait(false);
+            return TradeResult.FailedByFullInventory;
+        }
+
         this.AttachItemsToPersistenceContext(traderItems, itemContext);
         this.AttachItemsToPersistenceContext(tradePartnerItems, itemContext);
 
-        if (!await TryAddItemsOfTradingPartnerAsync(trader).ConfigureAwait(false) || !await TryAddItemsOfTradingPartnerAsync(tradingPartner).ConfigureAwait(false))
+        // The slots in the trade storages, to put the items back if the trade can't be finished.
+        var traderItemSlots = traderItems.Select(item => (Item: item, Slot: item.ItemSlot)).ToList();
+        var tradePartnerItemSlots = tradePartnerItems.Select(item => (Item: item, Slot: item.ItemSlot)).ToList();
+
+        if (!await TryAddItemsOfTradingPartnerAsync(trader).ConfigureAwait(false))
         {
-            // TODO: Maybe notify which player has the full inventory.
-            await this.SendMessageAsync(trader, nameof(PlayerMessage.InventoryFull)).ConfigureAwait(false);
-            await this.SendMessageAsync(tradingPartner, nameof(PlayerMessage.InventoryFull)).ConfigureAwait(false);
+            // Nothing was moved, the failed transfer was already rolled back.
+            await this.SendInventoryFullMessagesAsync(trader, tradingPartner).ConfigureAwait(false);
+            return TradeResult.FailedByFullInventory;
+        }
+
+        if (!await TryAddItemsOfTradingPartnerAsync(tradingPartner).ConfigureAwait(false))
+        {
+            // The trader already took the items of the partner. A cancelled trade returns the items of
+            // the trade storages to their owners, so they have to be put back there.
+            await PutBackIntoTradeAsync(trader.Inventory!, tradingPartner.TemporaryStorage!, tradePartnerItemSlots).ConfigureAwait(false);
+            await this.SendInventoryFullMessagesAsync(trader, tradingPartner).ConfigureAwait(false);
             return TradeResult.FailedByFullInventory;
         }
 
         try
         {
             this.DetachItemsFromPersistenceContext(traderItems, trader.PersistenceContext);
-            this.DetachItemsFromPersistenceContext(tradePartnerItems, trader.TradingPartner!.PersistenceContext);
+            this.DetachItemsFromPersistenceContext(tradePartnerItems, tradingPartner.PersistenceContext);
             await itemContext.SaveChangesAsync().ConfigureAwait(false);
-            this.AttachItemsToPersistenceContext(traderItems, trader.TradingPartner.PersistenceContext);
-            this.AttachItemsToPersistenceContext(tradePartnerItems, trader.PersistenceContext);
-            trader.Money += trader.TradingPartner.TradingMoney;
-            trader.TradingPartner.Money += trader.TradingMoney;
-            await trader.TradingPartner.InvokeViewPlugInAsync<IChangeTradeButtonStatePlugIn>(p => p.ChangeTradeButtonStateAsync(TradeButtonState.Checked)).ConfigureAwait(false);
-            this.ResetTradeState(trader.TradingPartner);
-            this.ResetTradeState(trader);
-            this.CallPlugIn(traderItems, trader, tradingPartner);
-            this.CallPlugIn(tradePartnerItems, tradingPartner, trader);
-            FinishedTrades.Add(1);
-            return TradeResult.Success;
         }
         catch (Exception exception)
         {
+            // Nothing was saved, so the items go back to the trade storages and to the persistence contexts
+            // of their owners. The cancellation of the trade returns them.
+            await PutBackIntoTradeAsync(tradingPartner.Inventory!, trader.TemporaryStorage!, traderItemSlots).ConfigureAwait(false);
+            await PutBackIntoTradeAsync(trader.Inventory!, tradingPartner.TemporaryStorage!, tradePartnerItemSlots).ConfigureAwait(false);
+            this.AttachItemsToPersistenceContext(traderItems, trader.PersistenceContext);
+            this.AttachItemsToPersistenceContext(tradePartnerItems, tradingPartner.PersistenceContext);
+
             await this.SendMessageAsync(trader, nameof(PlayerMessage.UnexpectedErrorDuringClosingTrade)).ConfigureAwait(false);
             await this.SendMessageAsync(tradingPartner, nameof(PlayerMessage.UnexpectedErrorDuringClosingTrade)).ConfigureAwait(false);
             context.Allowed = false;
@@ -128,6 +146,55 @@ public class TradeButtonAction : BaseTradeAction
             (trader as Player)?.Logger.LogError(exception, $"An unexpected error occured during closing the trade. trader: {trader.Name}, partner:{tradingPartner.Name}");
             return TradeResult.Cancelled;
         }
+
+        // From here on, the trade is saved and can't be undone.
+        this.AttachItemsToPersistenceContext(traderItems, tradingPartner.PersistenceContext);
+        this.AttachItemsToPersistenceContext(tradePartnerItems, trader.PersistenceContext);
+        var moneyOfTrader = trader.TradingMoney;
+        var moneyOfPartner = tradingPartner.TradingMoney;
+        this.ResetTradeState(tradingPartner);
+        this.ResetTradeState(trader);
+        trader.Money += moneyOfPartner;
+        tradingPartner.Money += moneyOfTrader;
+        FinishedTrades.Add(1);
+
+        try
+        {
+            await tradingPartner.InvokeViewPlugInAsync<IChangeTradeButtonStatePlugIn>(p => p.ChangeTradeButtonStateAsync(TradeButtonState.Checked)).ConfigureAwait(false);
+            this.CallPlugIn(traderItems, trader, tradingPartner);
+            this.CallPlugIn(tradePartnerItems, tradingPartner, trader);
+        }
+        catch (Exception exception)
+        {
+            (trader as Player)?.Logger.LogError(exception, $"An unexpected error occured after closing the trade. trader: {trader.Name}, partner:{tradingPartner.Name}");
+        }
+
+        return TradeResult.Success;
+    }
+
+    private static bool CanReceiveMoney(ITrader receiver, int amount)
+    {
+        var maximum = receiver.GameContext.Configuration?.MaximumInventoryMoney ?? int.MaxValue;
+        return (long)receiver.Money + amount <= maximum;
+    }
+
+    private static async ValueTask PutBackIntoTradeAsync(IStorage inventory, IStorage tradeStorage, IEnumerable<(Item Item, byte Slot)> itemSlots)
+    {
+        foreach (var (item, slot) in itemSlots)
+        {
+            await inventory.RemoveItemAsync(item).ConfigureAwait(false);
+            if (!await tradeStorage.AddItemAsync(slot, item).ConfigureAwait(false))
+            {
+                await tradeStorage.AddItemAsync(item).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private async ValueTask SendInventoryFullMessagesAsync(ITrader trader, ITrader tradingPartner)
+    {
+        // TODO: Maybe notify which player has the full inventory.
+        await this.SendMessageAsync(trader, nameof(PlayerMessage.InventoryFull)).ConfigureAwait(false);
+        await this.SendMessageAsync(tradingPartner, nameof(PlayerMessage.InventoryFull)).ConfigureAwait(false);
     }
 
     private async ValueTask<bool> CheckItemsAreTradableAsync(ITrader trader, IEnumerable<Item> items)

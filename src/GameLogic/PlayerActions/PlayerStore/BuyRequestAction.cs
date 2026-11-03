@@ -32,6 +32,15 @@ public class BuyRequestAction
             return;
         }
 
+        if (player.BackupInventory is not null || requestedPlayer.BackupInventory is not null)
+        {
+            // A crafting dialog is open, and its inventory backup would undo the purchase when the player
+            // disconnects: the buyer would get back the money, or the seller the sold item.
+            player.Logger.LogWarning("Player {0} tried to buy from the store of {1} while one of them has an inventory backup of a crafting dialog.", player, requestedPlayer);
+            await player.InvokeViewPlugInAsync<IPlayerShopBuyRequestResultPlugIn>(p => p.ShowResultAsync(requestedPlayer, ItemBuyResult.ItemBlock, null)).ConfigureAwait(false);
+            return;
+        }
+
         if (!(requestedPlayer.ShopStorage?.StoreOpen ?? false))
         {
             player.Logger.LogDebug("Store not open, Character {0}", requestedPlayer.SelectedCharacter?.Name);

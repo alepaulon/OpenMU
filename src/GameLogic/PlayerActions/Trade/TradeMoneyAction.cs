@@ -32,9 +32,10 @@ public class TradeMoneyAction
             return;
         }
 
-        // Add the Money to the Trade
-        player.TryAddMoney(player.TradingMoney);
-        player.TryAddMoney((int)(-1 * moneyAmount));
+        // Add the Money to the Trade. The previously offered money goes back to the inventory. It's calculated
+        // directly instead of adding and removing it with the limits of the inventory money: if one of these
+        // steps was refused, the offer would contain money which was never taken from the inventory.
+        player.Money = (int)Math.Min(int.MaxValue, (long)player.Money + player.TradingMoney - moneyAmount);
         player.TradingMoney = (int)moneyAmount;
         await player.InvokeViewPlugInAsync<IUpdateMoneyPlugIn>(p => p.UpdateMoneyAsync()).ConfigureAwait(false);
         await player.InvokeViewPlugInAsync<IRequestedTradeMoneyHasBeenSetPlugIn>(p => p.RequestedTradeMoneyHasBeenSetAsync()).ConfigureAwait(false);

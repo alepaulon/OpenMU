@@ -1350,6 +1350,10 @@ public class Player : AsyncDisposable, IBucketMapObserver, IAttackable, IAttacke
     /// </summary>
     public async ValueTask RemoveFromGameAsync()
     {
+        // E.g. when going back to the character selection, the trade has to end before the items of
+        // the temporary storage are returned below. Otherwise, the partner would stay in the trade.
+        await this.CloseTradeIfNeededAsync().ConfigureAwait(false);
+
         if (this.Party is { } party)
         {
             await party.LeaveTemporarilyAsync(this).ConfigureAwait(false);
