@@ -20,6 +20,12 @@ public class AreaSkillAttackAction
     private const short ElectricSpikeSkillId = 65;
 
     /// <summary>
+    /// The tiles which the aimed point of a skill may be beyond the skill range, because the positions of the
+    /// game client and the server can differ a bit. It's the same tolerance as for targeted skills.
+    /// </summary>
+    private const int TargetAreaRangeTolerance = 2;
+
+    /// <summary>
     /// Performs the skill by the player at the specified area. Additionally, to the target area, a target object can be specified.
     /// </summary>
     /// <param name="player">The player.</param>
@@ -33,6 +39,15 @@ public class AreaSkillAttackAction
         var skillEntry = player.SkillList?.GetSkill(skillId);
         if (skillEntry?.Skill is not { } skill || skill.SkillType == SkillType.PassiveBoost)
         {
+            return;
+        }
+
+        if (AreaSkillTargetSelector.IsAreaAroundTargetPoint(skill)
+            && !player.IsInRange(targetAreaCenter, skill.Range + TargetAreaRangeTolerance))
+        {
+            // The targets are searched around the aimed point, so without this check a modified client
+            // could hit targets anywhere on the map.
+            player.Logger.LogWarning("Possible hacker - player {player} aimed skill {skill} at {target}, which is out of its range from {position}.", player, skill.Number, targetAreaCenter, player.Position);
             return;
         }
 

@@ -14,6 +14,23 @@ using MUnique.OpenMU.GameLogic.Views.World;
 public class HitAction
 {
     /// <summary>
+    /// The maximum distance, in tiles, at which a hit without a ranged weapon is accepted.
+    /// </summary>
+    /// <remarks>
+    /// A melee hit reaches about two tiles. Two more are tolerated, because the positions of the game client
+    /// and the server can differ a bit, like for skills.
+    /// </remarks>
+    internal const int MaximumMeleeHitDistance = 4;
+
+    /// <summary>
+    /// The maximum distance, in tiles, at which a hit with a ranged weapon (bow or crossbow) is accepted.
+    /// </summary>
+    /// <remarks>
+    /// A ranged hit reaches about six tiles, plus the same tolerance as for melee hits.
+    /// </remarks>
+    internal const int MaximumRangedHitDistance = 8;
+
+    /// <summary>
     /// Hits the specified target by the specified player.
     /// </summary>
     /// <param name="player">The player.</param>
@@ -42,6 +59,13 @@ public class HitAction
             }
         }
 
+        if (!player.IsInRange(target.Position, GetMaximumHitDistance(player)))
+        {
+            // The observer check above allows hits from almost the whole visible range.
+            player.Logger.LogWarning("Possible hacker - player {player} at {position} hit {target} at {targetPosition}, which is out of range.", player, player.Position, target, target.Position);
+            return;
+        }
+
         player.Rotation = lookingDirection;
         var hitInfo = await target.AttackByAsync(player, null, false).ConfigureAwait(false);
         if (hitInfo is { SkillEntry.Skill: not null } hit)
@@ -59,6 +83,21 @@ public class HitAction
         }
 
         await player.ForEachWorldObserverAsync<IShowAnimationPlugIn>(p => p.ShowAnimationAsync(player, attackAnimation, target, lookingDirection), false).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Gets the maximum distance at which the player may hit a target without a skill.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <returns>The maximum distance in tiles.</returns>
+    /// <remarks>
+    /// Ranged weapons are the ones which consume ammunition (arrows and bolts).
+    /// </remarks>
+    internal static int GetMaximumHitDistance(Player player)
+    {
+        return player.Attributes?[Stats.AmmunitionConsumptionRate] > 0
+            ? MaximumRangedHitDistance
+            : MaximumMeleeHitDistance;
     }
 
     private async ValueTask<(Skill Skill, bool EffectApplied)?> ApplySkinnedMonstersSkillAsync(Player player, IAttackable target, short skin)

@@ -149,12 +149,23 @@ public static class AreaSkillTargetSelector
             return (casterPosition, Math.Max(range, (int)Math.Ceiling(frustumSettings.FrustumDistance)));
         }
 
-        if (skill.AreaSkillSettings is { UseTargetAreaFilter: true } or { EffectRange: > 0 })
+        if (IsAreaAroundTargetPoint(skill))
         {
             return (targetAreaCenter, range);
         }
 
         return (casterPosition, range);
+    }
+
+    /// <summary>
+    /// Determines whether the area of the skill is around the client-aimed point instead of around the caster.
+    /// </summary>
+    /// <param name="skill">The skill.</param>
+    /// <returns><c>true</c> if the area is around the aimed point; otherwise, <c>false</c>.</returns>
+    internal static bool IsAreaAroundTargetPoint(Skill skill)
+    {
+        return skill.AreaSkillSettings is { UseFrustumFilter: false } settings
+               && (settings.UseTargetAreaFilter || settings.EffectRange > 0);
     }
 
     /// <summary>

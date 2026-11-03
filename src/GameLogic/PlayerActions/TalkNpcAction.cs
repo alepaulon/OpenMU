@@ -21,6 +21,35 @@ using MUnique.OpenMU.Interfaces;
 public class TalkNpcAction
 {
     /// <summary>
+    /// The maximum distance, in tiles, between a player and an NPC it requests to talk to.
+    /// </summary>
+    /// <remarks>
+    /// The game client walks next to the NPC before it requests to talk. Some NPCs stand behind a counter,
+    /// and the server position can be a step behind the client, so a few tiles are tolerated.
+    /// </remarks>
+    internal const int MaximumTalkDistance = 5;
+
+    /// <summary>
+    /// Talks to the specified NPC on request of the game client, if the player stands next to it.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <param name="npc">The NPC.</param>
+    /// <remarks>
+    /// Talking opens the NPC windows (merchant, vault, chaos machine), so without the distance check a modified
+    /// client could use them from anywhere on the map.
+    /// </remarks>
+    public async ValueTask TalkToNearbyNpcAsync(Player player, NonPlayerCharacter npc)
+    {
+        if (!player.IsInRange(npc.Position, MaximumTalkDistance))
+        {
+            player.Logger.LogWarning("Possible hacker - player {player} at {position} requested to talk to {npc} at {npcPosition}, which is too far away.", player, player.Position, npc, npc.Position);
+            return;
+        }
+
+        await this.TalkToNpcAsync(player, npc).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Talks to the specified Monster.
     /// </summary>
     /// <param name="player">The player.</param>
