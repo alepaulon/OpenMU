@@ -121,7 +121,7 @@ public class InventoryStorage : Storage, IInventoryStorage
     /// <inheritdoc />
     public override async ValueTask RemoveItemAsync(Item item)
     {
-        var isEquippedItem = this.IsWearingSlot(item.ItemSlot);
+        var isEquippedItem = this.IsWearingSlot(item.ItemSlot) && Equals(this.GetItem(item.ItemSlot), item);
         await base.RemoveItemAsync(item).ConfigureAwait(false);
         if (isEquippedItem && this.EquippedItemsChanged is { } eventHandler)
         {

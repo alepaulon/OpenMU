@@ -112,6 +112,28 @@ public class StorageTest
         Assert.That(storage.FreeSlots.Contains((byte)(12 + (7 * 8))), Is.True);
     }
 
+    /// <summary>
+    /// Tests that removing an item which isn't in the storage doesn't free the item which occupies the same slot,
+    /// e.g. when a failed transfer from another storage is rolled back.
+    /// </summary>
+    [Test]
+    public async ValueTask RemoveItemOfAnotherStorageKeepsTheItemAtTheSameSlotAsync()
+    {
+        var itemStorage = this.CreateItemStorage();
+        var storage = new Storage(12 + 64, 12, 0, itemStorage) as IStorage;
+        var storedItem = this.GetItem(2, 2);
+        await storage.AddItemAsync(20, storedItem).ConfigureAwait(false);
+        var foreignItem = this.GetItem(1, 1);
+        foreignItem.ItemSlot = 20;
+
+        await storage.RemoveItemAsync(foreignItem).ConfigureAwait(false);
+
+        Assert.That(storage.GetItem(20), Is.SameAs(storedItem));
+        Assert.That(storage.Items, Is.EquivalentTo(new[] { storedItem }));
+        Assert.That(storage.FreeSlots.Contains((byte)20), Is.False);
+        Assert.That(await storage.AddItemAsync(20, this.GetItem(1, 1)).ConfigureAwait(false), Is.False);
+    }
+
     private ItemDefinition GetItemDefintion(byte width, byte heigth)
     {
         var itemDefinition = new ItemDefinition

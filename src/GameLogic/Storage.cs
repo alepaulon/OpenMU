@@ -286,6 +286,14 @@ public class Storage : IStorage
         if (this.ContainsSlot(item.ItemSlot))
         {
             var slot = item.ItemSlot - this._slotOffset;
+            if (!Equals(this.ItemArray[slot], item))
+            {
+                // The item isn't in this storage, e.g. when a failed transfer rolls back an item which was
+                // never added. Its slot belongs to another storage, so it must not free the item which
+                // occupies the same slot number here.
+                return;
+            }
+
             this.ItemArray[slot] = null;
             if (slot >= this._boxOffset)
             {
