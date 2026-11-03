@@ -65,7 +65,6 @@ public class BaseTradeAction
     protected void ResetTradeState(ITrader trader)
     {
         trader.TradingPartner = null;
-        trader.TradingMoney = 0;
         trader.BackupInventory = null;
         trader.TemporaryStorage!.Clear();
     }

@@ -296,6 +296,29 @@ public class TradeTest
     }
 
     /// <summary>
+    /// Tests that the money of a finished trade isn't returned when the next trade request is declined.
+    /// </summary>
+    [Test]
+    public async ValueTask TradedMoneyIsNotReturnedByTheNextTradeAsync()
+    {
+        var (trader1, trader2) = await this.CreateTradersAsync().ConfigureAwait(false);
+        trader1.Money = 1000;
+        await this.OpenTradeAsync(trader1, trader2).ConfigureAwait(false);
+        await new TradeMoneyAction().TradeMoneyAsync(trader1, 300).ConfigureAwait(false);
+        var tradeButtonHandler = new TradeButtonAction();
+        await tradeButtonHandler.TradeButtonChangedAsync(trader1, TradeButtonState.Checked).ConfigureAwait(false);
+        await tradeButtonHandler.TradeButtonChangedAsync(trader2, TradeButtonState.Checked).ConfigureAwait(false);
+        Assert.That(trader1.Money, Is.EqualTo(700));
+        Assert.That(trader2.Money, Is.EqualTo(300));
+
+        await new TradeRequestAction().RequestTradeAsync(trader1, trader2).ConfigureAwait(false);
+        await new TradeAcceptAction().HandleTradeAcceptAsync(trader2, false).ConfigureAwait(false);
+
+        Assert.That(trader1.Money, Is.EqualTo(700));
+        Assert.That(trader2.Money, Is.EqualTo(300));
+    }
+
+    /// <summary>
     /// Tests that an item can't be dropped while a trade is open, but afterwards.
     /// </summary>
     [Test]

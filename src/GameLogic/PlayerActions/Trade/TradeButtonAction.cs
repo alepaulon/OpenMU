@@ -41,6 +41,14 @@ public class TradeButtonAction : BaseTradeAction
                 await this.CancelTradeAsync(trader, false).ConfigureAwait(false);
                 (trader as Player)?.Logger.LogDebug($"Cancelled the trade because of unfinished state. trader: {trader.Name}, partner:{tradingPartner.Name}");
             }
+            else
+            {
+                // The offered money was handed over. It's kept until the traders entered the world again, so that
+                // plugins which observe this state change still see what was traded. Kept beyond, a cancellation
+                // of the next trade request would return it a second time.
+                trader.TradingMoney = 0;
+                tradingPartner.TradingMoney = 0;
+            }
 
             await trader.InvokeViewPlugInAsync<ITradeFinishedPlugIn>(p => p.TradeFinishedAsync(result)).ConfigureAwait(false);
             await tradingPartner.InvokeViewPlugInAsync<ITradeFinishedPlugIn>(p => p.TradeFinishedAsync(result)).ConfigureAwait(false);
