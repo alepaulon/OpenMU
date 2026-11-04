@@ -40,6 +40,14 @@ public interface ISkillList
     ValueTask<bool> RemoveItemSkillAsync(ushort skillId);
 
     /// <summary>
+    /// Removes a learned skill from the character, e.g. for a plugin which grants skills that
+    /// can be taken away again. An equipped item which grants the same skill keeps it available.
+    /// </summary>
+    /// <param name="skillId">The skill identifier.</param>
+    /// <returns><c>True</c>, if the character had learned the skill; Otherwise, <c>false</c>.</returns>
+    ValueTask<bool> RemoveLearnedSkillAsync(ushort skillId);
+
+    /// <summary>
     /// Determines whether the list contains the specified skill of the specified id.
     /// </summary>
     /// <param name="skillId">The skill identifier.</param>
