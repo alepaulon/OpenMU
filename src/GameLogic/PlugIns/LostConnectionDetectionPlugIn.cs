@@ -4,6 +4,7 @@
 
 namespace MUnique.OpenMU.GameLogic.PlugIns;
 
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using MUnique.OpenMU.PlugIns;
 
@@ -19,6 +20,12 @@ using MUnique.OpenMU.PlugIns;
 /// the world, the connection is considered lost and the player is disconnected.
 /// Players whose client didn't report it since entering the world, e.g. because it doesn't support it, are not
 /// affected. Neither are players outside of the world, because not every client reports it there.
+/// <para>
+/// The periodic tasks of a game are called one after another, so a check must not wait for a disconnection
+/// which doesn't complete, e.g. because the player is stuck in an action which holds its state. The players
+/// are disconnected at the same time, and the check waits only a limited time for them. A player whose
+/// disconnection is still running is not disconnected again.
+/// </para>
 /// </remarks>
 [PlugIn]
 [Display(Name = nameof(PlugInResources.LostConnectionDetectionPlugIn_Name), Description = nameof(PlugInResources.LostConnectionDetectionPlugIn_Description), ResourceType = typeof(PlugInResources))]
@@ -30,6 +37,16 @@ public class LostConnectionDetectionPlugIn : IPeriodicTaskPlugIn, ISupportCustom
     /// so that a lost connection is detected shortly after the timeout elapsed.
     /// </summary>
     private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// The maximum time a check waits for the disconnections it started.
+    /// </summary>
+    private static readonly TimeSpan DisconnectionWaitTime = TimeSpan.FromSeconds(3);
+
+    /// <summary>
+    /// The players whose disconnection was started, but didn't complete yet.
+    /// </summary>
+    private readonly ConcurrentDictionary<Player, byte> _disconnectingPlayers = new();
 
     private DateTime _nextCheckUtc = DateTime.UtcNow;
 
@@ -48,17 +65,36 @@ public class LostConnectionDetectionPlugIn : IPeriodicTaskPlugIn, ISupportCustom
 
         this._nextCheckUtc = now + CheckInterval;
         var players = await gameContext.GetPlayersAsync().ConfigureAwait(false);
+        List<(Player Player, Task Disconnection)>? disconnections = null;
         foreach (var player in players)
         {
             if (player.LastAliveReport is not { } lastAliveReport
                 || now - lastAliveReport <= timeout
-                || !player.IsConnected)
+                || !player.IsConnected
+                || !this._disconnectingPlayers.TryAdd(player, 0))
             {
                 continue;
             }
 
             player.Logger.LogInformation("Disconnecting {Player}, because its client didn't report since {LastAliveReport} that it's alive.", player, lastAliveReport);
-            await player.DisconnectAsync().ConfigureAwait(false);
+            (disconnections ??= []).Add((player, this.DisconnectAsync(player).AsTask()));
+        }
+
+        if (disconnections is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await Task.WhenAll(disconnections.Select(d => d.Disconnection)).WaitAsync(DisconnectionWaitTime).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            foreach (var (player, _) in disconnections.Where(d => !d.Disconnection.IsCompleted))
+            {
+                player.Logger.LogWarning("The disconnection of {Player} didn't complete within {WaitTime}. It may be stuck.", player, DisconnectionWaitTime);
+            }
         }
     }
 
@@ -72,5 +108,21 @@ public class LostConnectionDetectionPlugIn : IPeriodicTaskPlugIn, ISupportCustom
     public object CreateDefaultConfig()
     {
         return new LostConnectionDetectionConfiguration();
+    }
+
+    private async ValueTask DisconnectAsync(Player player)
+    {
+        try
+        {
+            await player.DisconnectAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            player.Logger.LogError(ex, "Error while disconnecting {Player}.", player);
+        }
+        finally
+        {
+            this._disconnectingPlayers.TryRemove(player, out _);
+        }
     }
 }

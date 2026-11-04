@@ -87,6 +87,45 @@ public class LostConnectionDetectionPlugInTest
     }
 
     /// <summary>
+    /// Tests that a player whose disconnection doesn't complete, e.g. because its state is locked by a hanging
+    /// action, doesn't keep the other lost players connected, and doesn't keep the check running.
+    /// The periodic tasks of the game are called one after another, so a check which doesn't return
+    /// holds up all of them.
+    /// </summary>
+    [Test]
+    public async ValueTask HangingDisconnectionDoesNotHoldUpTheOthersAsync()
+    {
+        var gameContext = (GameContext)GameContextTestHelper.CreateGameContext();
+        var hangingPlayer = await CreateConnectedPlayerAsync(gameContext).ConfigureAwait(false);
+        var lostPlayer = await CreateConnectedPlayerAsync(gameContext).ConfigureAwait(false);
+        var plugIn = new LostConnectionDetectionPlugIn
+        {
+            Configuration = new LostConnectionDetectionConfiguration { Timeout = TimeSpan.FromMilliseconds(100) },
+        };
+
+        hangingPlayer.ReportAlive();
+        lostPlayer.ReportAlive();
+        await Task.Delay(300).ConfigureAwait(false);
+
+        // Holding the state lock lets the disconnection of the player wait.
+        var stateLock = await hangingPlayer.PlayerState.TryBeginAdvanceToAsync(PlayerState.EnteredWorld).ConfigureAwait(false);
+        try
+        {
+            var check = plugIn.ExecuteTaskAsync(gameContext).AsTask();
+            var completed = await Task.WhenAny(check, Task.Delay(TimeSpan.FromSeconds(20))).ConfigureAwait(false);
+            Assert.That(completed, Is.SameAs(check), "The check doesn't return.");
+
+            var remainingPlayers = await gameContext.GetPlayersAsync().ConfigureAwait(false);
+            Assert.That(remainingPlayers, Does.Not.Contain(lostPlayer));
+            Assert.That(remainingPlayers, Does.Contain(hangingPlayer));
+        }
+        finally
+        {
+            await stateLock.DisposeAsync().ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
     /// Tests that a timeout of zero disables the detection.
     /// </summary>
     [Test]
