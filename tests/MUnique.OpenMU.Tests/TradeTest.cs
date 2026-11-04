@@ -378,6 +378,64 @@ public class TradeTest
         Mock.Get(trader2.ViewPlugIns.GetPlugIn<ITradeFinishedPlugIn>()!).Verify(view => view.TradeFinishedAsync(It.IsAny<TradeResult>()), Times.Never);
     }
 
+    /// <summary>
+    /// Tests that a trade which both traders accept at the same time is finished, and only once.
+    /// Each trader sees that the partner accepted and starts to finish the trade, holding its own state lock
+    /// before it takes the one of the partner. Taking them in the order of the traders deadlocked both.
+    /// </summary>
+    [Test]
+    public async ValueTask TradeAcceptedByBothAtTheSameTimeIsFinishedOnceAsync()
+    {
+        var (trader1, trader2) = await this.CreateTradersAsync().ConfigureAwait(false);
+        trader1.Money = 1000;
+        trader2.Money = 1000;
+        var item1 = this.GetItem();
+        var item2 = this.GetItem();
+        await trader1.Inventory!.AddItemAsync(20, item1).ConfigureAwait(false);
+        await trader2.Inventory!.AddItemAsync(20, item2).ConfigureAwait(false);
+        await this.OpenTradeAsync(trader1, trader2).ConfigureAwait(false);
+        var itemMoveAction = new MoveItemAction();
+        await itemMoveAction.MoveItemAsync(trader1, 20, Storages.Inventory, 0, Storages.Trade).ConfigureAwait(false);
+        await itemMoveAction.MoveItemAsync(trader2, 20, Storages.Inventory, 0, Storages.Trade).ConfigureAwait(false);
+        await new TradeMoneyAction().TradeMoneyAsync(trader1, 300).ConfigureAwait(false);
+        await new TradeMoneyAction().TradeMoneyAsync(trader2, 200).ConfigureAwait(false);
+
+        // Both accept, before one of them looks at the state of the partner ...
+        var accepted = new Rendezvous();
+        trader1.PlayerState.StateChanged += args => args.CurrentStateState == PlayerState.TradeButtonPressed ? accepted.ArriveAsync(0) : ValueTask.CompletedTask;
+        trader2.PlayerState.StateChanged += args => args.CurrentStateState == PlayerState.TradeButtonPressed ? accepted.ArriveAsync(1) : ValueTask.CompletedTask;
+
+        // ... and both start to finish the trade, before one of them takes the state lock of the partner.
+        var finishing = new Rendezvous();
+        trader1.PlayerState.StateChanges += args => trader1.PlayerState.CurrentState == PlayerState.TradeButtonPressed && args.NextState == PlayerState.EnteredWorld ? finishing.ArriveAsync(0) : ValueTask.CompletedTask;
+        trader2.PlayerState.StateChanges += args => trader2.PlayerState.CurrentState == PlayerState.TradeButtonPressed && args.NextState == PlayerState.EnteredWorld ? finishing.ArriveAsync(1) : ValueTask.CompletedTask;
+
+        var tradeButtonHandler = new TradeButtonAction();
+        var acceptances = Task.WhenAll(
+            Task.Run(() => tradeButtonHandler.TradeButtonChangedAsync(trader1, TradeButtonState.Checked).AsTask()),
+            Task.Run(() => tradeButtonHandler.TradeButtonChangedAsync(trader2, TradeButtonState.Checked).AsTask()));
+        var completed = await Task.WhenAny(acceptances, Task.Delay(TimeSpan.FromSeconds(10))).ConfigureAwait(false);
+        Assert.That(completed, Is.SameAs(acceptances), "The traders are deadlocked.");
+        await acceptances.ConfigureAwait(false);
+
+        Assert.That(trader1.PlayerState.CurrentState, Is.EqualTo(PlayerState.EnteredWorld));
+        Assert.That(trader2.PlayerState.CurrentState, Is.EqualTo(PlayerState.EnteredWorld));
+        Assert.That(trader1.Inventory.ItemStorage.Items, Is.EquivalentTo(new[] { item2 }));
+        Assert.That(trader2.Inventory.ItemStorage.Items, Is.EquivalentTo(new[] { item1 }));
+        Assert.That(trader1.TemporaryStorage!.Items, Is.Empty);
+        Assert.That(trader2.TemporaryStorage!.Items, Is.Empty);
+        Assert.That(trader1.Money, Is.EqualTo(900));
+        Assert.That(trader2.Money, Is.EqualTo(1100));
+        Assert.That(trader1.TradingMoney, Is.EqualTo(0));
+        Assert.That(trader2.TradingMoney, Is.EqualTo(0));
+        foreach (var trader in new[] { trader1, trader2 })
+        {
+            var finishedView = Mock.Get(trader.ViewPlugIns.GetPlugIn<ITradeFinishedPlugIn>()!);
+            finishedView.Verify(view => view.TradeFinishedAsync(TradeResult.Success), Times.Once);
+            finishedView.Verify(view => view.TradeFinishedAsync(It.Is<TradeResult>(result => result != TradeResult.Success)), Times.Never);
+        }
+    }
+
     private Item GetItem(byte width = 1, byte height = 1)
     {
         var item = new Mock<Item>();
@@ -426,4 +484,32 @@ public class TradeTest
     }
 
     //// TODO: Test fail scenarios
+
+    /// <summary>
+    /// A point at which two parties wait for each other.
+    /// A party which waits longer than a second goes on alone, e.g. when the other one can't get there
+    /// before the first one went on.
+    /// </summary>
+    private sealed class Rendezvous
+    {
+        private readonly TaskCompletionSource[] _arrivals =
+        [
+            new(TaskCreationOptions.RunContinuationsAsynchronously),
+            new(TaskCreationOptions.RunContinuationsAsynchronously),
+        ];
+
+        /// <summary>
+        /// Arrives at the rendezvous and waits for the other party. Only the first arrival of a party waits.
+        /// </summary>
+        /// <param name="party">The index of the arriving party, 0 or 1.</param>
+        public async ValueTask ArriveAsync(int party)
+        {
+            if (!this._arrivals[party].TrySetResult())
+            {
+                return;
+            }
+
+            await Task.WhenAny(Task.WhenAll(this._arrivals.Select(arrival => arrival.Task)), Task.Delay(TimeSpan.FromSeconds(1))).ConfigureAwait(false);
+        }
+    }
 }

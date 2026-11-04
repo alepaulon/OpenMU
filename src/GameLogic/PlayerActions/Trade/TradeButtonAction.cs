@@ -32,9 +32,9 @@ public class TradeButtonAction : BaseTradeAction
 
         if (trader.PlayerState.CurrentState == PlayerState.TradeButtonPressed
             && tradingPartner is not null
-            && tradingPartner.PlayerState.CurrentState == PlayerState.TradeButtonPressed)
+            && tradingPartner.PlayerState.CurrentState == PlayerState.TradeButtonPressed
+            && await this.InternalFinishTradeAsync(trader, tradingPartner).ConfigureAwait(false) is { } result)
         {
-            TradeResult result = await this.InternalFinishTradeAsync(trader, tradingPartner).ConfigureAwait(false);
             if (result != TradeResult.Success)
             {
                 await this.CancelTradeAsync(tradingPartner, false).ConfigureAwait(false);
@@ -53,7 +53,7 @@ public class TradeButtonAction : BaseTradeAction
             await trader.InvokeViewPlugInAsync<ITradeFinishedPlugIn>(p => p.TradeFinishedAsync(result)).ConfigureAwait(false);
             await tradingPartner.InvokeViewPlugInAsync<ITradeFinishedPlugIn>(p => p.TradeFinishedAsync(result)).ConfigureAwait(false);
         }
-        else if (tradingPartner is not null)
+        else if (tradingPartner is not null && trader.TradingPartner == tradingPartner)
         {
             await tradingPartner.InvokeViewPlugInAsync<IChangeTradeButtonStatePlugIn>(p => p.ChangeTradeButtonStateAsync(TradeButtonState.Checked)).ConfigureAwait(false);
         }
@@ -73,10 +73,34 @@ public class TradeButtonAction : BaseTradeAction
         return true;
     }
 
-    private async ValueTask<TradeResult> InternalFinishTradeAsync(ITrader trader, ITrader tradingPartner)
+    /// <summary>
+    /// Finishes the trade, if both traders still accept it.
+    /// </summary>
+    /// <param name="trader">The trader.</param>
+    /// <param name="tradingPartner">The trading partner.</param>
+    /// <returns>The result of the trade, or <c>null</c> if the trade isn't to be finished (anymore).</returns>
+    /// <remarks>
+    /// When both traders accept at the same time, both see that the partner accepted and get here.
+    /// The state locks of both are taken in a global order, otherwise each could take its own and wait for the
+    /// one of the partner forever. The one who gets them second finds the trade already finished and does nothing.
+    /// It must not cancel the trade, because that would return the offered money again.
+    /// </remarks>
+    private async ValueTask<TradeResult?> InternalFinishTradeAsync(ITrader trader, ITrader tradingPartner)
     {
-        await using var context = await trader.PlayerState.TryBeginAdvanceToAsync(PlayerState.EnteredWorld).ConfigureAwait(false);
-        await using var partnerContext = await tradingPartner.PlayerState.TryBeginAdvanceToAsync(PlayerState.EnteredWorld).ConfigureAwait(false);
+        var contexts = await StateMachine.TryBeginAdvanceToAsync(trader.PlayerState, PlayerState.EnteredWorld, tradingPartner.PlayerState, PlayerState.EnteredWorld).ConfigureAwait(false);
+        await using var context = contexts.First;
+        await using var partnerContext = contexts.Second;
+        if (trader.TradingPartner != tradingPartner
+            || tradingPartner.TradingPartner != trader
+            || trader.PlayerState.CurrentState != PlayerState.TradeButtonPressed
+            || tradingPartner.PlayerState.CurrentState != PlayerState.TradeButtonPressed)
+        {
+            // Finished by the partner in the meantime, or one of them doesn't accept anymore.
+            context.Allowed = false;
+            partnerContext.Allowed = false;
+            return null;
+        }
+
         if (!context.Allowed || !partnerContext.Allowed)
         {
             context.Allowed = false;

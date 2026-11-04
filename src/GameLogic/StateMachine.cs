@@ -5,6 +5,7 @@
 namespace MUnique.OpenMU.GameLogic;
 
 using System.ComponentModel;
+using System.Threading;
 using MUnique.OpenMU.PlugIns;
 using Nito.AsyncEx;
 
@@ -14,9 +15,25 @@ using Nito.AsyncEx;
 public class StateMachine
 {
     /// <summary>
+    /// The last assigned <see cref="_lockOrder"/>.
+    /// </summary>
+    private static long _lastLockOrder;
+
+    /// <summary>
     /// The lock object for state transitions.
     /// </summary>
+    /// <remarks>
+    /// Invariant: whoever holds the locks of two state machines at the same time (e.g. the two traders
+    /// when a trade is finished) acquires them in the order of <see cref="_lockOrder"/>, through
+    /// <see cref="TryBeginAdvanceToAsync(StateMachine, State, StateMachine, State)"/>.
+    /// Otherwise, two such callers with the opposite order deadlock each other.
+    /// </remarks>
     private readonly AsyncLock _asyncLock = new();
+
+    /// <summary>
+    /// The position of <see cref="_asyncLock"/> in the global lock order. It's unique and doesn't change.
+    /// </summary>
+    private readonly long _lockOrder = Interlocked.Increment(ref _lastLockOrder);
 
     /// <summary>
     /// A cancel event args object, which is getting reused.
@@ -101,6 +118,46 @@ public class StateMachine
         };
 
         return context;
+    }
+
+    /// <summary>
+    /// Tries to start a "transaction" to advance the states of two state machines at the same time.
+    /// The locks of both are acquired in the global lock order, regardless of the order of the parameters.
+    /// </summary>
+    /// <param name="first">The first state machine.</param>
+    /// <param name="firstNextState">The state to advance the first state machine to.</param>
+    /// <param name="second">The second state machine.</param>
+    /// <param name="secondNextState">The state to advance the second state machine to.</param>
+    /// <returns>The state change contexts of both state machines, in the order of the parameters.</returns>
+    public static async ValueTask<(StateChangeContext First, StateChangeContext Second)> TryBeginAdvanceToAsync(StateMachine first, State firstNextState, StateMachine second, State secondNextState)
+    {
+        if (ReferenceEquals(first, second))
+        {
+            throw new ArgumentException("The state machines must be different, because the lock isn't reentrant.", nameof(second));
+        }
+
+        if (first._lockOrder < second._lockOrder)
+        {
+            var firstContext = await first.TryBeginAdvanceToAsync(firstNextState).ConfigureAwait(false);
+            return (firstContext, await BeginWhileHoldingAsync(firstContext, second, secondNextState).ConfigureAwait(false));
+        }
+
+        var secondContext = await second.TryBeginAdvanceToAsync(secondNextState).ConfigureAwait(false);
+        return (await BeginWhileHoldingAsync(secondContext, first, firstNextState).ConfigureAwait(false), secondContext);
+
+        static async ValueTask<StateChangeContext> BeginWhileHoldingAsync(StateChangeContext heldContext, StateMachine stateMachine, State nextState)
+        {
+            try
+            {
+                return await stateMachine.TryBeginAdvanceToAsync(nextState).ConfigureAwait(false);
+            }
+            catch
+            {
+                heldContext.Allowed = false;
+                await heldContext.DisposeAsync().ConfigureAwait(false);
+                throw;
+            }
+        }
     }
 
     /// <summary>
