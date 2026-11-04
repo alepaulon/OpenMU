@@ -317,6 +317,56 @@ public class SkillListTest
         Assert.That(powerUpChanged, Is.False, "The released power-up should no longer follow the attributes of the character.");
     }
 
+    /// <summary>
+    /// Tests that a removed learned skill is no longer available, neither in the skill list nor in the learned skills of the character.
+    /// </summary>
+    [Test]
+    public async ValueTask LearnedSkillRemovedAsync()
+    {
+        var player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        var skillEntry = this.CreateSkillEntry(LearnedSkillId);
+        player.SelectedCharacter!.LearnedSkills.Add(skillEntry);
+        using var skillList = new SkillList(player);
+
+        Assert.That(await skillList.RemoveLearnedSkillAsync(LearnedSkillId).ConfigureAwait(false), Is.True);
+        Assert.That(skillList.ContainsSkill(LearnedSkillId), Is.False);
+        Assert.That(player.SelectedCharacter.LearnedSkills, Does.Not.Contain(skillEntry));
+        Assert.That(await skillList.RemoveLearnedSkillAsync(LearnedSkillId).ConfigureAwait(false), Is.False);
+    }
+
+    /// <summary>
+    /// Tests that removing a learned skill keeps it available when an equipped item grants the same skill.
+    /// </summary>
+    [Test]
+    public async ValueTask ItemSkillKeptWhenLearnedSkillRemovedAsync()
+    {
+        var player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        player.SelectedCharacter!.LearnedSkills.Add(this.CreateSkillEntry(QualifiedItemSkillId));
+        await player.Inventory!.AddItemAsync(0, this.CreateItemWithSkill(QualifiedItemSkillId, player.SelectedCharacter.CharacterClass)).ConfigureAwait(false);
+        using var skillList = new SkillList(player);
+
+        Assert.That(await skillList.RemoveLearnedSkillAsync(QualifiedItemSkillId).ConfigureAwait(false), Is.True);
+        Assert.That(skillList.ContainsSkill(QualifiedItemSkillId), Is.True);
+        Assert.That(player.SelectedCharacter.LearnedSkills, Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests that removing a learned master skill removes its passive power-ups from the character.
+    /// </summary>
+    [Test]
+    public async ValueTask PassivePowerUpRemovedWithLearnedSkillAsync()
+    {
+        var player = await PlayerTestHelper.CreatePlayerAsync().ConfigureAwait(false);
+        var skillEntry = CreatePassiveSkillEntry("level * 2", AggregateType.AddRaw, Stats.MasteryMoveTargetChance, Stats.MasterSkillValue, 1);
+        skillEntry.Level = 5;
+        player.SelectedCharacter!.LearnedSkills.Add(skillEntry);
+        using var skillList = new SkillList(player);
+        Assert.That(player.Attributes![Stats.MasteryMoveTargetChance], Is.EqualTo(10));
+
+        Assert.That(await skillList.RemoveLearnedSkillAsync(PassiveSkillId).ConfigureAwait(false), Is.True);
+        Assert.That(player.Attributes[Stats.MasteryMoveTargetChance], Is.EqualTo(0));
+    }
+
     private Item CreateItemWithSkill(ushort skillId, CharacterClass? qualifiedClass = null)
     {
         var itemDefinition = new Mock<ItemDefinition>();

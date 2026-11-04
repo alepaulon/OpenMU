@@ -25,7 +25,7 @@ public sealed class SkillList : ISkillList, IDisposable
 
     private readonly IInventoryStorage _inventory;
 
-    private List<IDisposable>? _passivePowerUps;
+    private Dictionary<SkillEntry, List<IDisposable>>? _passivePowerUps;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SkillList"/> class.
@@ -67,7 +67,7 @@ public sealed class SkillList : ISkillList, IDisposable
     /// <inheritdoc/>
     public byte SkillCount => (byte)this._availableSkills.Count;
 
-    private List<IDisposable> PassivePowerUps => this._passivePowerUps ??= new();
+    private Dictionary<SkillEntry, List<IDisposable>> PassivePowerUps => this._passivePowerUps ??= new();
 
     /// <inheritdoc />
     /// <remarks>
@@ -77,7 +77,7 @@ public sealed class SkillList : ISkillList, IDisposable
     public void Dispose()
     {
         this._inventory.EquippedItemsChanged -= this.Inventory_WearingItemsChangedAsync;
-        this._passivePowerUps?.ForEach(p => p.Dispose());
+        this._passivePowerUps?.Values.SelectMany(p => p).ForEach(p => p.Dispose());
         this._passivePowerUps = null;
         foreach (var skillEntry in this._learnedSkills.Concat(this._itemSkills).Concat(this._availableSkills.Values).Distinct())
         {
@@ -134,6 +134,39 @@ public sealed class SkillList : ISkillList, IDisposable
         {
             await this._player.InvokeViewPlugInAsync<ISkillListViewPlugIn>(p => p.RemoveSkillAsync(availableSkill.Skill!)).ConfigureAwait(false);
             this._availableSkills.Remove(skillId);
+        }
+
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask<bool> RemoveLearnedSkillAsync(ushort skillId)
+    {
+        var skillEntry = this._learnedSkills.FirstOrDefault(s => s.Skill!.Number.ToUnsigned() == skillId);
+        if (skillEntry is null)
+        {
+            return false;
+        }
+
+        this._learnedSkills.Remove(skillEntry);
+        if (this._passivePowerUps?.Remove(skillEntry, out var powerUps) is true)
+        {
+            powerUps.ForEach(p => p.Dispose());
+        }
+
+        ReleaseCharacterDependentState(skillEntry);
+
+        // An equipped item which grants the same skill keeps it available.
+        if (this._itemSkills.FirstOrDefault(s => s.Skill!.Number.ToUnsigned() == skillId) is { } itemSkill)
+        {
+            this._availableSkills[skillId] = itemSkill;
+            return true;
+        }
+
+        this._availableSkills.Remove(skillId);
+        if (skillEntry.Skill!.SkillType != SkillType.PassiveBoost)
+        {
+            await this._player.InvokeViewPlugInAsync<ISkillListViewPlugIn>(p => p.RemoveSkillAsync(skillEntry.Skill)).ConfigureAwait(false);
         }
 
         return true;
@@ -298,7 +331,13 @@ public sealed class SkillList : ISkillList, IDisposable
         }
 
         var skillAttributes = new PassiveSkillAttributes(skillEntry);
-        this.PassivePowerUps.Add(skillAttributes);
+        if (!this.PassivePowerUps.TryGetValue(skillEntry, out var powerUps))
+        {
+            powerUps = new List<IDisposable>();
+            this.PassivePowerUps.Add(skillEntry, powerUps);
+        }
+
+        powerUps.Add(skillAttributes);
         foreach (var powerUpDefinition in masterDefinition.PassivePowerUps)
         {
             if (powerUpDefinition is not { TargetAttribute: { } targetAttribute, Boost: not null })
@@ -308,7 +347,7 @@ public sealed class SkillList : ISkillList, IDisposable
             }
 
             var element = skillAttributes.Attributes.CreateElement(powerUpDefinition);
-            this.PassivePowerUps.Add(new PowerUpWrapper(element, targetAttribute, this._player.Attributes!));
+            powerUps.Add(new PowerUpWrapper(element, targetAttribute, this._player.Attributes!));
         }
     }
 
