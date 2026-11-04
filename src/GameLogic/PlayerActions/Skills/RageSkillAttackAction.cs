@@ -67,6 +67,11 @@ public class RageSkillAttackAction
             return;
         }
 
+        if (player.IsSkillUsePreventedByPlugIns(usedSkill))
+        {
+            return;
+        }
+
         // The additional targets are searched around the explicit target, so the skill also hits
         // a group of monsters when the fighter attacks it from the maximum distance.
         var searchCenter = explicitTarget?.Position ?? player.Position;

@@ -42,6 +42,11 @@ public class AreaSkillAttackAction
             return;
         }
 
+        if (player.IsSkillUsePreventedByPlugIns(skill))
+        {
+            return;
+        }
+
         if (AreaSkillTargetSelector.IsAreaAroundTargetPoint(skill)
             && !player.IsInRange(targetAreaCenter, skill.Range + TargetAreaRangeTolerance))
         {

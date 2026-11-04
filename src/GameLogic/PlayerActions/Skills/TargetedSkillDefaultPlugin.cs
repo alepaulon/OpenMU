@@ -59,6 +59,11 @@ public class TargetedSkillDefaultPlugin : TargetedSkillPluginBase
             return;
         }
 
+        if (player.IsSkillUsePreventedByPlugIns(skill))
+        {
+            return;
+        }
+
         bool isAttackSkill = AttackActionValidator.IsAttackSkill(skill);
 
         var miniGame = player.CurrentMiniGame;
