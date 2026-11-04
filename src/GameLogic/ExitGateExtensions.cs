@@ -30,6 +30,30 @@ public static class ExitGateExtensions
     }
 
     /// <summary>
+    /// Gets a random walkable point at the exit gate.
+    /// </summary>
+    /// <param name="gate">The gate.</param>
+    /// <param name="terrain">The terrain of the map of the gate; <c>null</c> when it's unknown.</param>
+    /// <returns>The random point.</returns>
+    /// <remarks>
+    /// Spawn gates often contain blocked tiles, e.g. the fountain in the middle of the Lorencia safezone.
+    /// A player placed on such a tile can't walk away on the client. So when the random point is blocked,
+    /// a random walkable one of the gate is chosen instead. When the gate has no walkable point at all
+    /// (or the terrain is unknown), the behavior of <see cref="GetRandomPoint(ExitGate)"/> is kept.
+    /// </remarks>
+    public static Point GetRandomPoint(this ExitGate gate, GameMapTerrain? terrain)
+    {
+        var point = gate.GetRandomPoint();
+        if (terrain is null || terrain.WalkMap[point.X, point.Y])
+        {
+            return point;
+        }
+
+        var walkablePoints = gate.GetPossibleLandingPoints().Where(p => terrain.WalkMap[p.X, p.Y]).ToList();
+        return walkablePoints.Count > 0 ? walkablePoints[Rand.NextInt(0, walkablePoints.Count)] : point;
+    }
+
+    /// <summary>
     /// Gets every coordinate which <see cref="GetRandomPoint"/> can select for the specified gate.
     /// </summary>
     /// <param name="gate">The gate.</param>

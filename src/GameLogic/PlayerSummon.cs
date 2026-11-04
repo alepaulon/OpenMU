@@ -1,4 +1,4 @@
-// <copyright file="PlayerSummon.cs" company="MUnique">
+﻿// <copyright file="PlayerSummon.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -120,11 +120,12 @@ internal sealed class PlayerSummon
     /// Moves the summon to the specified gate, when the player is placed there.
     /// </summary>
     /// <param name="gate">The gate.</param>
-    public void PlaceAtGate(ExitGate gate)
+    /// <param name="terrain">The terrain of the map of the gate, to place the summon on a walkable tile; <c>null</c> when it's unknown.</param>
+    public void PlaceAtGate(ExitGate gate, GameMapTerrain? terrain = null)
     {
         if (this.AliveMonster is { } summon)
         {
-            summon.Position = gate.GetRandomPoint();
+            summon.Position = gate.GetRandomPoint(terrain);
             summon.Rotation = gate.Direction;
         }
     }

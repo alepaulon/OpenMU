@@ -353,7 +353,8 @@ internal sealed class PlayerMapTransitions
             return;
         }
 
-        var landingPoint = gate.GetRandomPoint();
+        var terrain = await this.GetTerrainOfGateMapAsync(gate).ConfigureAwait(false);
+        var landingPoint = gate.GetRandomPoint(terrain);
         character.PositionX = landingPoint.X;
         character.PositionY = landingPoint.Y;
         character.CurrentMap = gate.Map;
@@ -361,7 +362,35 @@ internal sealed class PlayerMapTransitions
 
         await this._movement.ResetMovementStateAsync().ConfigureAwait(false);
 
-        this._summon.PlaceAtGate(gate);
+        this._summon.PlaceAtGate(gate, terrain);
+    }
+
+    /// <summary>
+    /// Gets the terrain of the map of the gate, to place the player on a walkable tile.
+    /// </summary>
+    /// <param name="gate">The gate.</param>
+    /// <returns>The terrain; <c>null</c>, if the gate has no map.</returns>
+    private async ValueTask<GameMapTerrain?> GetTerrainOfGateMapAsync(ExitGate gate)
+    {
+        if (gate.Map is not { } mapDefinition)
+        {
+            return null;
+        }
+
+        var player = this._player;
+        if (player.CurrentMiniGame?.Map is { } miniGameMap && miniGameMap.Definition.Number == mapDefinition.Number)
+        {
+            return miniGameMap.Terrain;
+        }
+
+        // Don't create the map here: it may be hosted by another game server. A map which isn't
+        // instantiated yet is rare (the first player entering it), so the terrain is read from its data then.
+        if (await player.GameContext.GetMapAsync(mapDefinition.Number.ToUnsigned(), false).ConfigureAwait(false) is { } map)
+        {
+            return map.Terrain;
+        }
+
+        return mapDefinition.TerrainData is null ? null : new GameMapTerrain(mapDefinition);
     }
 
     /// <summary>
