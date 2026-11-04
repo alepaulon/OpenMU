@@ -73,9 +73,9 @@ public class RemotePlayer : Player, IClientVersionProvider, IHasIpAddress
     }
 
     /// <summary>
-    /// Gets the connection.
+    /// Gets the connection, e.g. for plugins which send their own packets to the client.
     /// </summary>
-    internal IConnection? Connection { get; private set; }
+    public IConnection? Connection { get; private set; }
 
     /// <summary>
     /// Gets the currently effective appearance serializer.
