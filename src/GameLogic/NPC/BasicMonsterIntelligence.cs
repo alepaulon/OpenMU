@@ -7,6 +7,7 @@ namespace MUnique.OpenMU.GameLogic.NPC;
 using System.Diagnostics;
 using System.Threading;
 using MUnique.OpenMU.GameLogic.Attributes;
+using MUnique.OpenMU.GameLogic.PlugIns;
 using MUnique.OpenMU.Pathfinding;
 
 /// <summary>
@@ -94,6 +95,27 @@ public class BasicMonsterIntelligence : INpcIntelligence, IDisposable
     /// <param name="player">The player to check.</param>
     /// <returns>True if the player is the current target; otherwise, false.</returns>
     public bool IsTargetingPlayer(Player player) => this.CurrentTarget == player;
+
+    /// <summary>
+    /// Returns the current target if still valid, otherwise searches for a new one.
+    /// Plugins of the <see cref="INpcTargetSelectionPlugIn"/> can select another valid target.
+    /// </summary>
+    /// <returns>The target which the monster attacks; <c>null</c>, if there is none.</returns>
+    internal async ValueTask<IAttackable?> ResolveTargetAsync()
+    {
+        var target = await this.ResolveDefaultTargetAsync().ConfigureAwait(false);
+        if (this.Monster.PlugInManager?.GetPlugInPoint<INpcTargetSelectionPlugIn>() is { } plugInPoint)
+        {
+            var args = new NpcTargetSelectionArgs(this.CurrentTarget, target, this.IsValidTarget);
+            await plugInPoint.SelectTargetAsync(this.Monster, args).ConfigureAwait(false);
+            if (args.Target is { } selectedTarget && this.IsValidTarget(selectedTarget))
+            {
+                return selectedTarget;
+            }
+        }
+
+        return target;
+    }
 
     /// <summary>
     /// Called when the intelligence starts.
@@ -273,9 +295,9 @@ public class BasicMonsterIntelligence : INpcIntelligence, IDisposable
     /// <summary>
     /// Returns the current target if still valid, otherwise searches for a new one.
     /// </summary>
-    private async ValueTask<IAttackable?> ResolveTargetAsync()
+    private async ValueTask<IAttackable?> ResolveDefaultTargetAsync()
     {
-        if (this.CurrentTarget is not null && this.IsCurrentTargetValid())
+        if (this.CurrentTarget is not null && this.IsValidTarget(this.CurrentTarget))
         {
             // Double-check the target is still within the observer list (needed for
             // players who have moved out of view range server-side).
@@ -292,16 +314,16 @@ public class BasicMonsterIntelligence : INpcIntelligence, IDisposable
     }
 
     /// <summary>
-    /// Returns <c>true</c> if the current target is still a valid attack candidate.
+    /// Returns <c>true</c> if the target is a valid attack candidate.
     /// </summary>
-    private bool IsCurrentTargetValid()
+    private bool IsValidTarget(IAttackable target)
     {
-        return this.CurrentTarget is not null
-               && this.CurrentTarget.IsAlive
-               && this.CurrentTarget is not Player { IsInvisible: true }
-               && !this.CurrentTarget.IsTeleporting
-               && !this.CurrentTarget.IsAtSafezone()
-               && this.CurrentTarget.IsInRange(this.Monster.Position, this.Npc.Definition.ViewRange)
-               && this.Monster.HasLineOfSightTo(this.CurrentTarget);
+        return target.IsAlive
+               && target is not Player { IsInvisible: true }
+               && !target.IsTeleporting
+               && target.CurrentMap == this.Monster.CurrentMap
+               && !target.IsAtSafezone()
+               && target.IsInRange(this.Monster.Position, this.Npc.Definition.ViewRange)
+               && this.Monster.HasLineOfSightTo(target);
     }
 }

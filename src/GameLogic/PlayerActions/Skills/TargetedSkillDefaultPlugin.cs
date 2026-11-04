@@ -295,11 +295,15 @@ public class TargetedSkillDefaultPlugin : TargetedSkillPluginBase
                 {
                     await target.ApplyMagicEffectAsync(player, skillEntry).ConfigureAwait(false);
                     success = true;
+                    player.GameContext.PlugInManager.GetPlugInPoint<ISupportiveSkillAppliedPlugIn>()?.SupportiveSkillApplied(player, target, skill, 0);
                 }
                 else if (skill.SkillType == SkillType.Regeneration)
                 {
+                    var healthBefore = target.Attributes[Stats.CurrentHealth];
                     await target.ApplyRegenerationAsync(player, skillEntry).ConfigureAwait(false);
                     success = true;
+                    var restoredHealth = Math.Max(0, target.Attributes[Stats.CurrentHealth] - healthBefore);
+                    player.GameContext.PlugInManager.GetPlugInPoint<ISupportiveSkillAppliedPlugIn>()?.SupportiveSkillApplied(player, target, skill, restoredHealth);
                 }
                 else
                 {

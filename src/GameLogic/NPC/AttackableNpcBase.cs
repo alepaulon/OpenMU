@@ -98,6 +98,11 @@ public abstract class AttackableNpcBase : NonPlayerCharacter, IAttackable
         set => Interlocked.Exchange(ref this._health, value);
     }
 
+    /// <summary>
+    /// Gets the plugin manager.
+    /// </summary>
+    internal PlugInManager? PlugInManager => this._plugInManager;
+
     private bool ShouldRespawn => this.SpawnArea.SpawnTrigger == SpawnTrigger.Automatic
                                   || (this.SpawnArea.SpawnTrigger == SpawnTrigger.AutomaticDuringEvent && (this._eventStateProvider?.IsEventRunning ?? false))
                                   || (this.SpawnArea.SpawnTrigger == SpawnTrigger.AutomaticDuringWave && (this._eventStateProvider?.IsSpawnWaveActive(this.SpawnArea.WaveNumber) ?? false));
