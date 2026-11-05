@@ -121,7 +121,7 @@
     <value>{0} entró al juego.</value>
   </data>
   <data name="CommandNeedsArguments" xml:space="preserve">
-    <value>El comando necesita {0} argumentos y recibió {1}.</value>
+    <value>Argumentos del comando: necesita {0} y recibió {1}.</value>
   </data>
   <data name="RequiredArgumentNotUsed" xml:space="preserve">
     <value>Falta el argumento obligatorio {0}.</value>
@@ -772,7 +772,7 @@
     <value>El argumento {0} tiene un tipo inválido: se esperaba un valor de tipo {1}.</value>
   </data>
   <data name="CommandExtensionsInvalidArgumentCount" xml:space="preserve">
-    <value>El comando necesita {0} argumentos y recibió {1}.</value>
+    <value>Argumentos del comando: necesita {0} y recibió {1}.</value>
   </data>
   <data name="CharacterNameIsRequired" xml:space="preserve">
     <value>Falta el nombre del personaje.</value>
