@@ -1,4 +1,4 @@
-// <copyright file="ConfigurationCaptionsTests.cs" company="MUnique">
+﻿// <copyright file="ConfigurationCaptionsTests.cs" company="MUnique">
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 // </copyright>
 
@@ -53,6 +53,32 @@ public class ConfigurationCaptionsTests
 
         Assert.That(ConfigurationCaptions.FindUnresolvedSourceKeys(configuration), Is.EqualTo(new[] { "NotRegistered/Lorencia" }));
         Assert.That(ConfigurationCaptions.DetermineChanges(configuration), Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests that a translation which was added to a caption without renewing its stamp is kept:
+    /// the caption counts as customized, so no change proposes to remove the translation.
+    /// </summary>
+    [Test]
+    public void TranslationAddedWithoutNewStamp_IsNotProposedForRemoval()
+    {
+        var spanish = CultureInfo.GetCultureInfo("es");
+        var (configuration, _) = CreateConfiguration(LorenciaFromSource.WithTranslation(spanish, "Aldoren"));
+
+        Assert.That(ConfigurationCaptions.DetermineChanges(configuration), Is.Empty);
+    }
+
+    /// <summary>
+    /// Tests that the same translation with a renewed stamp would be proposed for removal, because then
+    /// the caption counts as unchanged since its source. That's why it's added without a new stamp.
+    /// </summary>
+    [Test]
+    public void TranslationAddedWithNewStamp_IsProposedForRemoval()
+    {
+        var spanish = CultureInfo.GetCultureInfo("es");
+        var (configuration, _) = CreateConfiguration(LorenciaFromSource.WithTranslation(spanish, "Aldoren").WithSourceStamp());
+
+        Assert.That(ConfigurationCaptions.DetermineChanges(configuration).Single().Kind, Is.EqualTo(CaptionChangeKind.Removed));
     }
 
     /// <summary>
