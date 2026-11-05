@@ -224,7 +224,7 @@ public class Player : AsyncDisposable, IBucketMapObserver, IAttackable, IAttacke
     /// <summary>
     /// Gets the culture setting of the player.
     /// </summary>
-    public CultureInfo Culture { get; internal set; }
+    public CultureInfo Culture { get; set; }
 
     /// <summary>
     /// Gets the skill hit validator.
