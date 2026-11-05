@@ -4,6 +4,7 @@
 
 namespace MUnique.OpenMU.GameLogic.PlugIns.ChatCommands;
 
+using System.Globalization;
 using MUnique.OpenMU.AttributeSystem;
 using MUnique.OpenMU.GameLogic.Attributes;
 using MUnique.OpenMU.Pathfinding;
@@ -141,7 +142,8 @@ public abstract class ChatCommandPlugInBase<T> : IChatCommandPlugIn
         var warpList = player.GameContext.Configuration.WarpList;
         return ushort.TryParse(map, out var mapId)
             ? warpList.FirstOrDefault(info => info.Gate?.Map?.Number == mapId)
-            : warpList.FirstOrDefault(info => map.Equals(info.Name.GetTranslationAsSpan(player.Culture), StringComparison.CurrentCultureIgnoreCase));
+            : warpList.FirstOrDefault(info => IsSameName(map, info.Name.GetTranslationAsSpan(player.Culture))
+                                              || IsSameName(map, info.Name.ValueInNeutralLanguageAsSpan));
     }
 
     /// <summary>
@@ -259,5 +261,16 @@ public abstract class ChatCommandPlugInBase<T> : IChatCommandPlugIn
         account.State = accountState;
         await context.SaveChangesAsync().ConfigureAwait(false);
         return true;
+    }
+
+    /// <summary>
+    /// Determines whether a name typed by a player is the specified name, ignoring case and accents.
+    /// </summary>
+    /// <param name="typedName">The typed name.</param>
+    /// <param name="name">The name.</param>
+    /// <returns><see langword="true"/>, if it's the same name.</returns>
+    private static bool IsSameName(string typedName, ReadOnlySpan<char> name)
+    {
+        return CultureInfo.InvariantCulture.CompareInfo.Compare(typedName, name, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0;
     }
 }
