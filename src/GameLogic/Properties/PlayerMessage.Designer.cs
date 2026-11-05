@@ -3180,5 +3180,77 @@ namespace MUnique.OpenMU.GameLogic.Properties {
                 return ResourceManager.GetString("ItemBoxRequiresLevel", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I have no quests for you..
+        /// </summary>
+        public static string NpcHasNoQuestsForYou {
+            get {
+                return ResourceManager.GetString("NpcHasNoQuestsForYou", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I have nothing to do for you. Come back with more power..
+        /// </summary>
+        public static string NpcHasNothingYetComeBackStronger {
+            get {
+                return ResourceManager.GetString("NpcHasNothingYetComeBackStronger", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I have nothing to do for you. You solved all my quests already..
+        /// </summary>
+        public static string NpcHasNothingAllQuestsSolved {
+            get {
+                return ResourceManager.GetString("NpcHasNothingAllQuestsSolved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your level should be at least level {0}.
+        /// </summary>
+        public static string GuildCreationLevelTooLowFormat {
+            get {
+                return ResourceManager.GetString("GuildCreationLevelTooLowFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You already belong to a guild.
+        /// </summary>
+        public static string AlreadyBelongToGuild {
+            get {
+                return ResourceManager.GetString("AlreadyBelongToGuild", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You need to be level {0} in order to warp.
+        /// </summary>
+        public static string WarpLevelTooLowFormat {
+            get {
+                return ResourceManager.GetString("WarpLevelTooLowFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The warp target is not initialized.
+        /// </summary>
+        public static string WarpTargetNotInitialized {
+            get {
+                return ResourceManager.GetString("WarpTargetNotInitialized", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You need {0} in order to warp.
+        /// </summary>
+        public static string WarpNotEnoughMoneyFormat {
+            get {
+                return ResourceManager.GetString("WarpNotEnoughMoneyFormat", resourceCulture);
+            }
+        }
     }
 }

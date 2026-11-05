@@ -52,13 +52,13 @@ public class WarpAction
         var requirement = player.SelectedCharacter?.GetEffectiveMoveLevelRequirement(warpInfo.LevelRequirement);
         if (requirement > player.Attributes?[Stats.Level])
         {
-            errorMessage = $"You need to be level {requirement} in order to warp";
+            errorMessage = player.GetLocalizedMessage(nameof(PlayerMessage.WarpLevelTooLowFormat), requirement);
             return false;
         }
 
         if (warpInfo.Gate?.Map is null)
         {
-            errorMessage = "The warp target is not initialized";
+            errorMessage = player.GetLocalizedMessage(nameof(PlayerMessage.WarpTargetNotInitialized));
             return false;
         }
 
@@ -71,7 +71,7 @@ public class WarpAction
         // Money check should be last to avoid getting zen when other checks failed
         if (!this.CheckMoneyRequirement(player, warpInfo))
         {
-            errorMessage = $"You need {warpInfo.Costs} in order to warp";
+            errorMessage = player.GetLocalizedMessage(nameof(PlayerMessage.WarpNotEnoughMoneyFormat), warpInfo.Costs);
             return false;
         }
 

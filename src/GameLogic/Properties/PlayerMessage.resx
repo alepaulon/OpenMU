@@ -1168,4 +1168,28 @@ Inventory Extensions: {18}</value>
   <data name="MapIsNotActive" xml:space="preserve">
     <value>This map is not available.</value>
   </data>
+  <data name="NpcHasNoQuestsForYou" xml:space="preserve">
+    <value>I have no quests for you.</value>
+  </data>
+  <data name="NpcHasNothingYetComeBackStronger" xml:space="preserve">
+    <value>I have nothing to do for you. Come back with more power.</value>
+  </data>
+  <data name="NpcHasNothingAllQuestsSolved" xml:space="preserve">
+    <value>I have nothing to do for you. You solved all my quests already.</value>
+  </data>
+  <data name="GuildCreationLevelTooLowFormat" xml:space="preserve">
+    <value>Your level should be at least level {0}</value>
+  </data>
+  <data name="AlreadyBelongToGuild" xml:space="preserve">
+    <value>You already belong to a guild</value>
+  </data>
+  <data name="WarpLevelTooLowFormat" xml:space="preserve">
+    <value>You need to be level {0} in order to warp</value>
+  </data>
+  <data name="WarpTargetNotInitialized" xml:space="preserve">
+    <value>The warp target is not initialized</value>
+  </data>
+  <data name="WarpNotEnoughMoneyFormat" xml:space="preserve">
+    <value>You need {0} in order to warp</value>
+  </data>
 </root>
