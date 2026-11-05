@@ -1,0 +1,1195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PlayerEnteredGameMessage" xml:space="preserve">
+    <value>{0} entró al juego.</value>
+  </data>
+  <data name="CommandNeedsArguments" xml:space="preserve">
+    <value>El comando necesita {0} argumentos y recibió {1}.</value>
+  </data>
+  <data name="RequiredArgumentNotUsed" xml:space="preserve">
+    <value>Falta el argumento obligatorio {0}.</value>
+  </data>
+  <data name="ArgumentInvalidType" xml:space="preserve">
+    <value>El argumento {0} tiene un tipo inválido: se esperaba un valor de tipo {1}.</value>
+  </data>
+  <data name="CharacterNameRequired" xml:space="preserve">
+    <value>Falta el nombre del personaje.</value>
+  </data>
+  <data name="CharacterNotFound" xml:space="preserve">
+    <value>No se encontró el personaje '{0}'.</value>
+  </data>
+  <data name="GuildNotFound" xml:space="preserve">
+    <value>No se encontró el clan {0}.</value>
+  </data>
+  <data name="NameRequired" xml:space="preserve">
+    <value>Falta el nombre.</value>
+  </data>
+  <data name="LoginNameRequired" xml:space="preserve">
+    <value>Falta el nombre de la cuenta.</value>
+  </data>
+  <data name="AccountNotFound" xml:space="preserve">
+    <value>No se encontró la cuenta.</value>
+  </data>
+  <data name="AccountPropertyNotFound" xml:space="preserve">
+    <value>No se encontró ese dato de la cuenta.</value>
+  </data>
+  <data name="CommandDoesNotExist" xml:space="preserve">
+    <value>El comando '{0}' no existe.</value>
+  </data>
+  <data name="MapNotFound" xml:space="preserve">
+    <value>No se encontró el mapa {0}.</value>
+  </data>
+  <data name="CharacterNameAlreadyExists" xml:space="preserve">
+    <value>Ya existe un personaje con ese nombre.</value>
+  </data>
+  <data name="AwardMoneyFailByFullInventory" xml:space="preserve">
+    <value>No se pudieron sumar las Coronas de la recompensa: tenés el máximo.</value>
+  </data>
+  <data name="CantEnterEventWithItem" xml:space="preserve">
+    <value>No podés entrar al evento con '{0}' equipado.</value>
+  </data>
+  <data name="MuHelperAlreadyRunning" xml:space="preserve">
+    <value>El asistente de caza ya está en marcha.</value>
+  </data>
+  <data name="MuHelperMinimumLevel" xml:space="preserve">
+    <value>El asistente de caza se puede usar desde el nivel {0}.</value>
+  </data>
+  <data name="MuHelperMaximumLevel" xml:space="preserve">
+    <value>El asistente de caza no se puede usar después del nivel {0}.</value>
+  </data>
+  <data name="MuHelperRequiresMoney" xml:space="preserve">
+    <value>El asistente de caza cuesta {0} Coronas.</value>
+  </data>
+  <data name="AlreadyInDuel" xml:space="preserve">
+    <value>Ya estás en un duelo.</value>
+  </data>
+  <data name="OtherPlayerAlreadyInDuel" xml:space="preserve">
+    <value>El otro jugador ya está en un duelo.</value>
+  </data>
+  <data name="DuelChannelIsFull" xml:space="preserve">
+    <value>El canal de duelos está lleno.</value>
+  </data>
+  <data name="DuelRequestMustBeOnSameMap" xml:space="preserve">
+    <value>Solo podés retar a duelo a jugadores de tu mismo mapa.</value>
+  </data>
+  <data name="NoDuelDuringMiniGame" xml:space="preserve">
+    <value>No podés empezar un duelo durante un evento.</value>
+  </data>
+  <data name="NoDuelWhileBeingPlayerKiller" xml:space="preserve">
+    <value>No podés empezar un duelo mientras seas asesino.</value>
+  </data>
+  <data name="NoDuelWithPlayerKiller" xml:space="preserve">
+    <value>No podés retar a duelo a un asesino.</value>
+  </data>
+  <data name="NoDuelDuringGuildWar" xml:space="preserve">
+    <value>No podés empezar un duelo durante una guerra de clanes.</value>
+  </data>
+  <data name="NoDuelDuringSelfDefense" xml:space="preserve">
+    <value>No podés empezar un duelo con la defensa propia activa.</value>
+  </data>
+  <data name="NoDuelWithOpenedNpcDialog" xml:space="preserve">
+    <value>No podés empezar un duelo mientras hablás con un NPC.</value>
+  </data>
+  <data name="NoDuelWithWrongState" xml:space="preserve">
+    <value>No se puede empezar el duelo: alguno de los dos no está disponible.</value>
+  </data>
+  <data name="ItemEffectNotFound" xml:space="preserve">
+    <value>No se encontró el efecto de este item.</value>
+  </data>
+  <data name="InvalidLostMap" xml:space="preserve">
+    <value>Este mapa perdido no sirve.</value>
+  </data>
+  <data name="NoKalimaGateOnEventMap" xml:space="preserve">
+    <value>No se puede abrir la puerta del Corazón del Sello en un mapa de evento.</value>
+  </data>
+  <data name="NoKalimaGateInSafezone" xml:space="preserve">
+    <value>No se puede abrir la puerta del Corazón del Sello en una zona segura.</value>
+  </data>
+  <data name="UndefinedGateNpc" xml:space="preserve">
+    <value>La puerta no tiene un NPC definido.</value>
+  </data>
+  <data name="KalimaEntranceNotFound" xml:space="preserve">
+    <value>No se encontró la entrada al Corazón del Sello.</value>
+  </data>
+  <data name="EventMapCreatedOnEntranceWithoutTimetable" xml:space="preserve">
+    <value>El mapa del evento se crea al entrar. No hay horario fijo.</value>
+  </data>
+  <data name="EventNotImplementedYet" xml:space="preserve">
+    <value>Este evento todavía no está disponible.</value>
+  </data>
+  <data name="AddingMultiplePointsWhileMiniGameNotAllowed" xml:space="preserve">
+    <value>No se pueden sumar varios puntos a la vez durante un evento.</value>
+  </data>
+  <data name="LoginAttemptWarning" xml:space="preserve">
+    <value>Alguien quiso entrar a esta cuenta. Si no fuiste vos, te conviene cambiar la contraseña.</value>
+  </data>
+  <data name="RequestedLanguageNotFound" xml:space="preserve">
+    <value>No se encontró el idioma '{0}'.</value>
+  </data>
+  <data name="LanguageChanged" xml:space="preserve">
+    <value>Idioma cambiado a '{0}' ({1}).</value>
+  </data>
+  <data name="AvailableLanguagesCaption" xml:space="preserve">
+    <value>Idiomas disponibles:</value>
+  </data>
+  <data name="AccountHasBeenBanned" xml:space="preserve">
+    <value>[{0}] La cuenta {1} fue suspendida.</value>
+  </data>
+  <data name="AccountOfHasBeenBanned" xml:space="preserve">
+    <value>[{0}] La cuenta de {1} fue suspendida.</value>
+  </data>
+  <data name="AccountChatBannedResult" xml:space="preserve">
+    <value>[{0}] La cuenta de {1} no puede usar el chat por {2} minutos</value>
+  </data>
+  <data name="YouAreChatBanned" xml:space="preserve">
+    <value>No podés usar el chat por {0} minutos</value>
+  </data>
+  <data name="YourChatBanRemovedByGameMaster" xml:space="preserve">
+    <value>Un GM te devolvió el chat.</value>
+  </data>
+  <data name="ChatBanRemoved" xml:space="preserve">
+    <value>[{0}] La cuenta de {1} ya puede usar el chat.</value>
+  </data>
+  <data name="MonsterNotFoundByNumber" xml:space="preserve">
+    <value>No se encontró el monstruo número {0}.</value>
+  </data>
+  <data name="MonsterCreatedByGameMaster" xml:space="preserve">
+    <value>Monstruo número {0} creado, id: {1}.</value>
+  </data>
+  <data name="CommandResultPlayerDisconnected" xml:space="preserve">
+    <value>[{0}] {1} fue desconectado.</value>
+  </data>
+  <data name="LevelInformation" xml:space="preserve">
+    <value>Nivel de '{0}': {1}.</value>
+  </data>
+  <data name="LevelUpPointsInfo" xml:space="preserve">
+    <value>Puntos por subir de nivel de '{0}': {1}.</value>
+  </data>
+  <data name="MasterLevelInfo" xml:space="preserve">
+    <value>Nivel maestro de '{0}': {1}.</value>
+  </data>
+  <data name="MasterLevelUpPointsInfo" xml:space="preserve">
+    <value>Puntos de nivel maestro de '{0}': {1}.</value>
+  </data>
+  <data name="MoneyInfo" xml:space="preserve">
+    <value>Coronas de '{0}': {1}.</value>
+  </data>
+  <data name="ResetsInfo" xml:space="preserve">
+    <value>Reinicios de '{0}': {1}.</value>
+  </data>
+  <data name="ResetSystemInactive" xml:space="preserve">
+    <value>Este server no tiene reinicios.</value>
+  </data>
+  <data name="StatPointInfo" xml:space="preserve">
+    <value>Estadística de '{0}': {1}.</value>
+  </data>
+  <data name="GuildDisconnectResult" xml:space="preserve">
+    <value>[{0}] {1} fue desconectado.</value>
+  </data>
+  <data name="MovedByGameMaster" xml:space="preserve">
+    <value>Un GM te movió de lugar.</value>
+  </data>
+  <data name="MovedPlayerResult" xml:space="preserve">
+    <value>[{0}] {1} fue movido a {2}, en {3}, {4}</value>
+  </data>
+  <data name="ItemCreatedResult" xml:space="preserve">
+    <value>[{0}] {1} creado</value>
+  </data>
+  <data name="ItemGroupNumberNotExists" xml:space="preserve">
+    <value>{0} {1} no existe.</value>
+  </data>
+  <data name="ItemLevelExceeded" xml:space="preserve">
+    <value>El nivel no puede pasar de {0}.</value>
+  </data>
+  <data name="MonsterNotFoundById" xml:space="preserve">
+    <value>No se encontró el monstruo con id {0}.</value>
+  </data>
+  <data name="InvalidMerchantId" xml:space="preserve">
+    <value>El id de NPC "{0}" no es válido. Tiene que ser el de un NPC que venda.</value>
+  </data>
+  <data name="NpcIsNotMerchant" xml:space="preserve">
+    <value>Ese NPC no vende nada.</value>
+  </data>
+  <data name="OnlineCountInfo" xml:space="preserve">
+    <value>[{0}] {1} GM y {2} jugadores conectados</value>
+  </data>
+  <data name="NoWarehouseNpcFound" xml:space="preserve">
+    <value>No se encontró un NPC con baúl</value>
+  </data>
+  <data name="PlayerKillLevelRangeError" xml:space="preserve">
+    <value>El nivel de asesino tiene que estar entre {0} y {1}.</value>
+  </data>
+  <data name="PlayerKillCountMustBePositive" xml:space="preserve">
+    <value>La cantidad de muertes tiene que ser mayor que cero.</value>
+  </data>
+  <data name="PlayerKillStateChangeResult" xml:space="preserve">
+    <value>[{0}] El estado de {1} cambió a {2} con {3} muertes por {4} minutos</value>
+  </data>
+  <data name="PkStatusClearedByGameMaster" xml:space="preserve">
+    <value>Un GM te limpió las muertes.</value>
+  </data>
+  <data name="PkClearedResult" xml:space="preserve">
+    <value>[{0}] Se limpiaron las muertes de {1}.</value>
+  </data>
+  <data name="NpcNotFoundById" xml:space="preserve">
+    <value>No se encontró el NPC con id {0}.</value>
+  </data>
+  <data name="NpcRemovedById" xml:space="preserve">
+    <value>NPC con id {0} eliminado.</value>
+  </data>
+  <data name="InvalidCharacterLevel" xml:space="preserve">
+    <value>Nivel inválido: tiene que estar entre 1 y {0}.</value>
+  </data>
+  <data name="SetLevelResult" xml:space="preserve">
+    <value>Nivel cambiado a {0}.</value>
+  </data>
+  <data name="InvalidLevelUpPoints" xml:space="preserve">
+    <value>Puntos inválidos: tienen que ser 0 o más.</value>
+  </data>
+  <data name="SetLevelUpPointsResult" xml:space="preserve">
+    <value>Puntos por subir de nivel cambiados a {0}.</value>
+  </data>
+  <data name="SetMasterLevelResult" xml:space="preserve">
+    <value>Nivel maestro cambiado a {0}.</value>
+  </data>
+  <data name="InvalidMasterLevelUpPoints" xml:space="preserve">
+    <value>Puntos de nivel maestro inválidos: tienen que ser 0 o más.</value>
+  </data>
+  <data name="SetMasterLevelUpPointsResult" xml:space="preserve">
+    <value>Puntos de nivel maestro cambiados a {0}.</value>
+  </data>
+  <data name="InvalidMoneyAmount" xml:space="preserve">
+    <value>Cantidad de Coronas inválida: tiene que estar entre 0 y {0}.</value>
+  </data>
+  <data name="SetMoneyResult" xml:space="preserve">
+    <value>Coronas cambiadas a {0}.</value>
+  </data>
+  <data name="InvalidResetsAmount" xml:space="preserve">
+    <value>Reinicios inválidos: tienen que ser más que 0.</value>
+  </data>
+  <data name="InvalidResetsWithLimits" xml:space="preserve">
+    <value>Reinicios inválidos: tienen que estar entre 0 y {0}.</value>
+  </data>
+  <data name="SetResetsResult" xml:space="preserve">
+    <value>Reinicios cambiados a {0}.</value>
+  </data>
+  <data name="InvalidStatValue" xml:space="preserve">
+    <value>{0} inválido: tiene que ser más que 1.</value>
+  </data>
+  <data name="InvalidStatValueRange" xml:space="preserve">
+    <value>{0} inválido: tiene que estar entre 0 y {1}.</value>
+  </data>
+  <data name="SetStatResult" xml:space="preserve">
+    <value>{0} cambiado a {1} para {2}.</value>
+  </data>
+  <data name="UnbanAccountResult" xml:space="preserve">
+    <value>[{0}] La cuenta {1} ya no está suspendida.</value>
+  </data>
+  <data name="UnbanAccountOfCharacterResult" xml:space="preserve">
+    <value>[{0}] La cuenta de {1} ya no está suspendida.</value>
+  </data>
+  <data name="KanturuMayaRises" xml:space="preserve">
+    <value>¡Maya se alza desde las profundidades de la Torre de Refinación!</value>
+  </data>
+  <data name="KanturuPhase1Start" xml:space="preserve">
+    <value>Fase 1: ¡derrotá a los monstruos para liberar el poder de Maya!</value>
+  </data>
+  <data name="KanturuMayaLeftHandAppeared" xml:space="preserve">
+    <value>¡Apareció la mano izquierda de Maya! ¡Destruila!</value>
+  </data>
+  <data name="KanturuPhase1Cleared" xml:space="preserve">
+    <value>¡Fase 1 superada! La fase 2 empieza en 2 minutos...</value>
+  </data>
+  <data name="KanturuPhase2Start" xml:space="preserve">
+    <value>Fase 2: ¡llegaron más siervos de Maya!</value>
+  </data>
+  <data name="KanturuMayaRightHandAppeared" xml:space="preserve">
+    <value>¡Apareció la mano derecha de Maya! ¡Destruila!</value>
+  </data>
+  <data name="KanturuPhase2Cleared" xml:space="preserve">
+    <value>¡Fase 2 superada! La fase 3 empieza en 2 minutos...</value>
+  </data>
+  <data name="KanturuPhase3Start" xml:space="preserve">
+    <value>Fase 3: ¡se acerca la última oleada!</value>
+  </data>
+  <data name="KanturuBothMayaHandsAppeared" xml:space="preserve">
+    <value>¡Aparecieron las dos manos de Maya! ¡Derrotalas!</value>
+  </data>
+  <data name="KanturuMayaHandsFallen" xml:space="preserve">
+    <value>¡Cayeron las manos de Maya! Juntá el botín: Pesadilla despierta en 10 segundos...</value>
+  </data>
+  <data name="KanturuNightmareGuardiansAppeared" xml:space="preserve">
+    <value>¡Aparecieron los guardianes de Pesadilla! ¡PESADILLA despierta en 3 segundos!</value>
+  </data>
+  <data name="KanturuNightmareAppeared" xml:space="preserve">
+    <value>¡Apareció PESADILLA! ¡Derrotala para ganar!</value>
+  </data>
+  <data name="KanturuNightmareTeleport2" xml:space="preserve">
+    <value>¡Pesadilla se teletransportó! ¡Que no se escape!</value>
+  </data>
+  <data name="KanturuNightmareTeleport3" xml:space="preserve">
+    <value>¡Pesadilla se teletransporta otra vez! ¡Seguí atacando!</value>
+  </data>
+  <data name="KanturuNightmareTeleport4" xml:space="preserve">
+    <value>¡Pesadilla está en las últimas! ¡Terminala!</value>
+  </data>
+  <data name="KanturuVictory" xml:space="preserve">
+    <value>¡Pesadilla fue derrotada! ¡La Torre de Refinación de Kanturu es tuya!</value>
+  </data>
+  <data name="KanturuRequiredItemDestroyed" xml:space="preserve">
+    <value>¡Se destruyó tu {0}! Te caés de la Torre de Refinación de Kanturu.</value>
+  </data>
+  <data name="KanturuBarrierOpening" xml:space="preserve">
+    <value>La barrera se abre: ¡la torre te espera!</value>
+  </data>
+  <data name="KanturuTowerConquered" xml:space="preserve">
+    <value>¡La Torre de Refinación de Kanturu fue conquistada! La torre ya está abierta.</value>
+  </data>
+  <data name="KanturuTowerClosingWarning" xml:space="preserve">
+    <value>¡La Torre de Kanturu cierra en 5 minutos!</value>
+  </data>
+  <data name="KanturuTowerClosed" xml:space="preserve">
+    <value>La Torre de Kanturu cerró.</value>
+  </data>
+  <data name="KanturuDefeat" xml:space="preserve">
+    <value>Terminó el evento de Kanturu. ¡Mejor suerte la próxima!</value>
+  </data>
+  <data name="BloodCastleArchangelAquiredMessageFormat" xml:space="preserve">
+    <value>{0} consiguió {1}</value>
+  </data>
+  <data name="PickupLimitReached" xml:space="preserve">
+    <value>Llegaste al límite de '{0}'.</value>
+  </data>
+  <data name="NotEnoughMoneyToEnter" xml:space="preserve">
+    <value>No te alcanzan las Coronas para entrar a {0}.</value>
+  </data>
+  <data name="MiniGameStartsInMinutesFormat" xml:space="preserve">
+    <value>{0} empieza en {1} minutos.</value>
+  </data>
+  <data name="MiniGameCantStartWithLessThanPlayers" xml:space="preserve">
+    <value>No puede empezar con menos de {0} jugadores.</value>
+  </data>
+  <data name="SkipWaitNotInMiniGame" xml:space="preserve">
+    <value>Tenés que estar dentro de un evento para saltear la espera.</value>
+  </data>
+  <data name="SkipWaitRequested" xml:space="preserve">
+    <value>Se salteó la espera.</value>
+  </data>
+  <data name="SkipWaitAnnouncedFormat" xml:space="preserve">
+    <value>{0} salteó la espera. ¡El evento sigue!</value>
+  </data>
+  <data name="SkipWaitNothingToSkip" xml:space="preserve">
+    <value>No hay ninguna espera para saltear: el evento ya está en marcha.</value>
+  </data>
+  <data name="MiniGameForceRestartFormat" xml:space="preserve">
+    <value>Se detuvo el evento {0} en curso. Pronto empieza uno nuevo.</value>
+  </data>
+  <data name="MiniGameForceStartInitiatedFormat" xml:space="preserve">
+    <value>{0} va a empezar pronto.</value>
+  </data>
+  <data name="MiniGameForceStartUnavailableFormat" xml:space="preserve">
+    <value>El evento {0} no está disponible en este server.</value>
+  </data>
+  <data name="KillAllMonstersFormat" xml:space="preserve">
+    <value>Monstruos eliminados: {0}.</value>
+  </data>
+  <data name="TalkingNotImplementedFormat" xml:space="preserve">
+    <value>Todavía no se puede hablar con este NPC ({0}, {1}).</value>
+  </data>
+  <data name="IllusionTempleRelicPickedUpFormat" xml:space="preserve">
+    <value>¡{0} tomó la reliquia sagrada!</value>
+  </data>
+  <data name="IllusionTempleRelicDroppedFormat" xml:space="preserve">
+    <value>¡{0} soltó la reliquia sagrada!</value>
+  </data>
+  <data name="IllusionTempleScoreFormat" xml:space="preserve">
+    <value>Puntaje - Fuerzas Aliadas: {0} | Fuerzas de la Ilusión: {1}</value>
+  </data>
+  <data name="IllusionTempleStatueSpawnedMessage" xml:space="preserve">
+    <value>¡Apareció una nueva reliquia sagrada!</value>
+  </data>
+  <data name="MiniGameEnterFailed" xml:space="preserve">
+    <value>No podés entrar a este evento.</value>
+  </data>
+  <data name="MiniGameNotConfigured" xml:space="preserve">
+    <value>Este evento no está configurado en este server y no puede empezar.</value>
+  </data>
+  <data name="MiniGameCharacterLevelTooLowFormat" xml:space="preserve">
+    <value>Te falta nivel: para entrar a este evento necesitás nivel {0} como mínimo.</value>
+  </data>
+  <data name="MiniGameCharacterLevelTooHighFormat" xml:space="preserve">
+    <value>Te sobra nivel: para entrar a este evento podés tener nivel {0} como máximo.</value>
+  </data>
+  <data name="MiniGameTicketRequired" xml:space="preserve">
+    <value>Necesitás una entrada para este evento.</value>
+  </data>
+  <data name="MiniGameEntranceFeeRequiredFormat" xml:space="preserve">
+    <value>Necesitás {0} Coronas para entrar a este evento.</value>
+  </data>
+  <data name="MiniGamePlayerKillersCantEnter" xml:space="preserve">
+    <value>¡Los asesinos no pueden entrar!</value>
+  </data>
+  <data name="MiniGameNotDuringGuildWar" xml:space="preserve">
+    <value>No podés entrar a este evento durante una guerra de clanes.</value>
+  </data>
+  <data name="MiniGameNotOpenFormat" xml:space="preserve">
+    <value>{0} no está abierto ahora.</value>
+  </data>
+  <data name="IllusionTempleBattleStartedMessage" xml:space="preserve">
+    <value>¡Empezó la batalla!</value>
+  </data>
+  <data name="BloodCastleCrystalStatusDestroyed" xml:space="preserve">
+    <value>¡{0} destruyó la Estatua de Cristal!</value>
+  </data>
+  <data name="CharacterWithNameAlreadyExists" xml:space="preserve">
+    <value>Ya existe un personaje con ese nombre.</value>
+  </data>
+  <data name="CantDeleteGuildMember" xml:space="preserve">
+    <value>No se puede borrar a un miembro de un clan. Primero sacá al personaje del clan.</value>
+  </data>
+  <data name="NotEnoughLevelUpPointsAvailable" xml:space="preserve">
+    <value>No tenés suficientes puntos para repartir.</value>
+  </data>
+  <data name="MaximumAttributeValueReachedFormat" xml:space="preserve">
+    <value>Llegaste al máximo de {0} en {1}.</value>
+  </data>
+  <data name="AttributeNotAvailable" xml:space="preserve">
+    <value>Esa estadística no está disponible.</value>
+  </data>
+  <data name="ChatBanMinutesRemaining" xml:space="preserve">
+    <value>Sin chat: faltan {0} minutos.</value>
+  </data>
+  <data name="ChatBanSecondsRemaining" xml:space="preserve">
+    <value>Sin chat: faltan {0} segundos.</value>
+  </data>
+  <data name="WrongSecurityCode" xml:space="preserve">
+    <value>Código de seguridad incorrecto.</value>
+  </data>
+  <data name="UsingThisItemNotImplemented" xml:space="preserve">
+    <value>Este item todavía no se puede usar.</value>
+  </data>
+  <data name="ItemUnknown" xml:space="preserve">
+    <value>Item desconocido</value>
+  </data>
+  <data name="InventoryFull" xml:space="preserve">
+    <value>El inventario está lleno</value>
+  </data>
+  <data name="NotEnoughMoney" xml:space="preserve">
+    <value>No te alcanzan las Coronas</value>
+  </data>
+  <data name="NoItemToRepair" xml:space="preserve">
+    <value>Ahí no hay ningún item para reparar.</value>
+  </data>
+  <data name="NotEnoughMoneyToRepair" xml:space="preserve">
+    <value>No te alcanzan las Coronas para reparar.</value>
+  </data>
+  <data name="YouLackOfJewels" xml:space="preserve">
+    <value>Te faltan Piedras.</value>
+  </data>
+  <data name="StackedJewelNotFound" xml:space="preserve">
+    <value>No se encontró el paquete de Piedras.</value>
+  </data>
+  <data name="SelectedItemIsNotStackedJewel" xml:space="preserve">
+    <value>Ese item no es un paquete de Piedras.</value>
+  </data>
+  <data name="InventoryNotEnoughSpace" xml:space="preserve">
+    <value>No hay lugar en el inventario.</value>
+  </data>
+  <data name="TheVaultIsLocked" xml:space="preserve">
+    <value>El baúl está cerrado con llave.</value>
+  </data>
+  <data name="CantEquipItemDuringEvent" xml:space="preserve">
+    <value>No podés equiparte este item durante el evento.</value>
+  </data>
+  <data name="YouCantWearThisItem" xml:space="preserve">
+    <value>No podés equiparte este item.</value>
+  </data>
+  <data name="ItemIsBoundToInventoryOfCharacter" xml:space="preserve">
+    <value>Este item está ligado al inventario de este personaje.</value>
+  </data>
+  <data name="ItemCannotBeDropped" xml:space="preserve">
+    <value>Este item no se puede tirar.</value>
+  </data>
+  <data name="ItemCannotBeRepaired" xml:space="preserve">
+    <value>Este item no se puede reparar.</value>
+  </data>
+  <data name="ItemCannotBeSoldInPersonalStore" xml:space="preserve">
+    <value>Este item no se puede vender en una tienda personal.</value>
+  </data>
+  <data name="ItemCannotBeSoldToNpc" xml:space="preserve">
+    <value>Este item no se puede vender.</value>
+  </data>
+  <data name="ItemCannotBeStored" xml:space="preserve">
+    <value>Este item no se puede guardar en el baúl.</value>
+  </data>
+  <data name="ItemCannotBeTraded" xml:space="preserve">
+    <value>Este item no se puede comerciar.</value>
+  </data>
+  <data name="NotEnoughMoneyToSendLetter" xml:space="preserve">
+    <value>No te alcanzan las Coronas para mandar una carta.</value>
+  </data>
+  <data name="ErrorDuringSendingLetter" xml:space="preserve">
+    <value>Algo falló al mandar la carta.</value>
+  </data>
+  <data name="MuHelperIsDisabled" xml:space="preserve">
+    <value>El asistente de caza está desactivado</value>
+  </data>
+  <data name="MuHelperCantHandleStatus" xml:space="preserve">
+    <value>El asistente de caza no puede con este estado: {0}</value>
+  </data>
+  <data name="PartyNotPossibleDuringEvent" xml:space="preserve">
+    <value>No se puede armar un grupo durante este evento.</value>
+  </data>
+  <data name="PlayerIsAlreadyInParty" xml:space="preserve">
+    <value>{0} ya está en un grupo.</value>
+  </data>
+  <data name="YouAreNotPartyMaster" xml:space="preserve">
+    <value>No sos quien lidera el grupo.</value>
+  </data>
+  <data name="RequestedPlayerForParty" xml:space="preserve">
+    <value>Le pediste a {0} que entre al grupo.</value>
+  </data>
+  <data name="SellerInventoryFull" xml:space="preserve">
+    <value>El inventario del vendedor está lleno.</value>
+  </data>
+  <data name="PlayerStoreNotOpen" xml:space="preserve">
+    <value>La tienda de ese jugador no está abierta.</value>
+  </data>
+  <data name="CharacterTooStrongMessage" xml:space="preserve">
+    <value>Ya sos lo bastante fuerte por tu cuenta.</value>
+  </data>
+  <data name="NotEnoughMoneyToProceed" xml:space="preserve">
+    <value>No te alcanzan las Coronas para seguir</value>
+  </data>
+  <data name="MissingMapRequirement" xml:space="preserve">
+    <value>Te falta un requisito para entrar a este mapa: {0}</value>
+  </data>
+  <data name="UnexpectedErrorDuringClosingTrade" xml:space="preserve">
+    <value>Algo falló al cerrar el comercio.</value>
+  </data>
+  <data name="UncheckTradeAcceptButtonFirst" xml:space="preserve">
+    <value>Primero sacá la aceptación del comercio</value>
+  </data>
+  <data name="LevelTooLowToEnterMap" xml:space="preserve">
+    <value>Te falta nivel para entrar a este mapa.</value>
+  </data>
+  <data name="HappyHourEventHasBeenStarted" xml:space="preserve">
+    <value>¡Empezó la hora feliz!</value>
+  </data>
+  <data name="SelfDefenseInitiatedFormat" xml:space="preserve">
+    <value>¡Defensa propia por el ataque de {0} a {1}!</value>
+  </data>
+  <data name="SelfDefenseDiminishesFormat" xml:space="preserve">
+    <value>Se termina la defensa propia de {0} contra {1}.</value>
+  </data>
+  <data name="ResetNotEnabled" xml:space="preserve">
+    <value>Los reinicios no están activados.</value>
+  </data>
+  <data name="CantResetWithOpenedWindows" xml:space="preserve">
+    <value>No podés reiniciar con ventanas abiertas.</value>
+  </data>
+  <data name="NotEnteredTheGame" xml:space="preserve">
+    <value>Todavía no entraste al juego.</value>
+  </data>
+  <data name="ResetNotConfigured" xml:space="preserve">
+    <value>Los reinicios no están configurados.</value>
+  </data>
+  <data name="NextResetInfoCompactWithItem" xml:space="preserve">
+    <value>Reinicio #{0}: pide nivel {1}, {2} Coronas, {3} x {4}; da {5} puntos, {6} en total</value>
+  </data>
+  <data name="NextResetInfoCompactNoItem" xml:space="preserve">
+    <value>Reinicio #{0}: pide nivel {1}, {2} Coronas; da {3} puntos, {4} en total</value>
+  </data>
+  <data name="RequiredLevelForReset" xml:space="preserve">
+    <value>Para reiniciar necesitás nivel {0}.</value>
+  </data>
+  <data name="MaximumResetsReached" xml:space="preserve">
+    <value>Llegaste al máximo de {0} reinicios.</value>
+  </data>
+  <data name="NotEnoughItemsForReset" xml:space="preserve">
+    <value>Te faltan items para reiniciar: necesitás {0} x {1}.</value>
+  </data>
+  <data name="NotEnoughMoneyForReset" xml:space="preserve">
+    <value>No te alcanzan las Coronas para reiniciar: necesitás {0}.</value>
+  </data>
+  <data name="DuelBattleBeginsInSecondsFormat" xml:space="preserve">
+    <value>La pelea empieza en {0} segundos</value>
+  </data>
+  <data name="LetterInvalid" xml:space="preserve">
+    <value>La carta no es válida.</value>
+  </data>
+  <data name="OpenStorePlayerNotFound" xml:space="preserve">
+    <value>Abrir tienda: no se encontró al jugador.</value>
+  </data>
+  <data name="PlayerNamesDontMatch" xml:space="preserve">
+    <value>Los nombres no coinciden. {0} &lt;&gt; {1}</value>
+  </data>
+  <data name="TradePartnerNotFound" xml:space="preserve">
+    <value>No se encontró al otro jugador del comercio.</value>
+  </data>
+  <data name="UnknownWarpIndex" xml:space="preserve">
+    <value>Destino desconocido: {0}</value>
+  </data>
+  <data name="LevelUpCongrats" xml:space="preserve">
+    <value>¡Felicitaciones! Ahora sos nivel {0}.</value>
+  </data>
+  <data name="MasterLevelUpCongrats" xml:space="preserve">
+    <value>¡Felicitaciones! Ahora sos nivel maestro {0}.</value>
+  </data>
+  <data name="YouGotKilledBy" xml:space="preserve">
+    <value>Te mató {0}</value>
+  </data>
+  <data name="DisconnectedByGameMaster" xml:space="preserve">
+    <value>Un GM te desconectó.</value>
+  </data>
+  <data name="DisconnectedByAdmin" xml:space="preserve">
+    <value>Un administrador te desconectó.</value>
+  </data>
+  <data name="TemporaryBanByGameMaster" xml:space="preserve">
+    <value>Un GM suspendió tu cuenta por un tiempo.</value>
+  </data>
+  <data name="CommandExtensions_RequiredArgumentMissing" xml:space="preserve">
+    <value>Falta el argumento obligatorio {0}.</value>
+  </data>
+  <data name="CommandExtensionsArgumentInvalidType" xml:space="preserve">
+    <value>El argumento {0} tiene un tipo inválido: se esperaba un valor de tipo {1}.</value>
+  </data>
+  <data name="CommandExtensionsInvalidArgumentCount" xml:space="preserve">
+    <value>El comando necesita {0} argumentos y recibió {1}.</value>
+  </data>
+  <data name="CharacterNameIsRequired" xml:space="preserve">
+    <value>Falta el nombre del personaje.</value>
+  </data>
+  <data name="DurationMustBeLongerThan0" xml:space="preserve">
+    <value>La duración tiene que ser de más de 0 minutos.</value>
+  </data>
+  <data name="UnknownAttribute" xml:space="preserve">
+    <value>Estadística desconocida: '{0}'.</value>
+  </data>
+  <data name="CharacterHasNoStatAttribute" xml:space="preserve">
+    <value>El personaje no tiene la estadística '{0}'.</value>
+  </data>
+  <data name="OfflineLevelingStarted" xml:space="preserve">
+    <value>Empezó la caza sin conexión. Podés volver a entrar cuando quieras para terminarla.</value>
+  </data>
+  <data name="OfflineLevelingFailed" xml:space="preserve">
+    <value>No se pudo empezar la caza sin conexión. Probá de nuevo en un lugar seguro.</value>
+  </data>
+  <data name="OfflineLevelingAlreadyActive" xml:space="preserve">
+    <value>Esta cuenta ya tiene activa la caza sin conexión.</value>
+  </data>
+  <data name="OfflineLevelingMustBeAlive" xml:space="preserve">
+    <value>Tenés que estar con vida para empezar la caza sin conexión.</value>
+  </data>
+  <data name="OfflineLevelingNotOnMap" xml:space="preserve">
+    <value>Tenés que estar en un mapa para empezar la caza sin conexión.</value>
+  </data>
+  <data name="OfflineLevelingInMiniGame" xml:space="preserve">
+    <value>No podés empezar la caza sin conexión durante un evento.</value>
+  </data>
+  <data name="OfflineLevelingNoCharacterSelected" xml:space="preserve">
+    <value>No hay ningún personaje elegido.</value>
+  </data>
+  <data name="OfflineLevelingMuHelperNotRunning" xml:space="preserve">
+    <value>Para empezar la caza sin conexión, el asistente de caza tiene que estar en marcha.</value>
+  </data>
+  <data name="StatResetNotEnabled" xml:space="preserve">
+    <value>El reinicio de estadísticas no está activado.</value>
+  </data>
+  <data name="StatResetNotConfigured" xml:space="preserve">
+    <value>El reinicio de estadísticas no está configurado.</value>
+  </data>
+  <data name="RequiredLevelForStatReset" xml:space="preserve">
+    <value>Para reiniciar las estadísticas necesitás nivel {0}.</value>
+  </data>
+  <data name="NotEnoughMoneyForStatReset" xml:space="preserve">
+    <value>No te alcanzan las Coronas para reiniciar las estadísticas: necesitás {0}.</value>
+  </data>
+  <data name="NotEnoughItemsForStatReset" xml:space="preserve">
+    <value>Te faltan items para reiniciar las estadísticas: necesitás {0} x {1}.</value>
+  </data>
+  <data name="CantResetStatsNotInSafezone" xml:space="preserve">
+    <value>Las estadísticas solo se reinician en una zona segura.</value>
+  </data>
+  <data name="CantResetStatsWithOpenedWindows" xml:space="preserve">
+    <value>No podés reiniciar las estadísticas con ventanas abiertas.</value>
+  </data>
+  <data name="StatResetChatCommandDisabled" xml:space="preserve">
+    <value>El comando /resetstats está desactivado.</value>
+  </data>
+  <data name="StatsResetSuccessfully" xml:space="preserve">
+    <value>Tus estadísticas se reiniciaron. Tenés {0} puntos para repartir.</value>
+  </data>
+  <data name="InvasionMonsterDefeated" xml:space="preserve">
+    <value>¡{0} derrotó a {1} {2}!</value>
+  </data>
+  <data name="PkClearCommandOnlyForGameMasters" xml:space="preserve">
+    <value>Este comando es solo para GM.</value>
+  </data>
+  <data name="PkClearOnlyClearOwnPk" xml:space="preserve">
+    <value>Solo podés limpiar tu propio estado de asesino.</value>
+  </data>
+  <data name="PkClearTargetNotPlayerKiller" xml:space="preserve">
+    <value>{0} no es asesino.</value>
+  </data>
+  <data name="PkClearYouAreNotPlayerKiller" xml:space="preserve">
+    <value>No sos asesino.</value>
+  </data>
+  <data name="ItemDoesNotBelongToYou" xml:space="preserve">
+    <value>Este item no es tuyo.</value>
+  </data>
+  <data name="CharacterNotStrongEnoughMessage" xml:space="preserve">
+    <value>Todavía no sos lo bastante fuerte para esto.</value>
+  </data>
+  <data name="DoppelgangerIceWalkerAppeared" xml:space="preserve">
+    <value>¡Apareció el Caminante de Hielo! Matalo en menos de un minuto o los monstruos que siguen se hacen más fuertes.</value>
+  </data>
+  <data name="DoppelgangerIceWalkerEscaped" xml:space="preserve">
+    <value>¡El Caminante de Hielo se escapó! Los monstruos que siguen son más fuertes.</value>
+  </data>
+  <data name="DoppelgangerIceWalkerKilled" xml:space="preserve">
+    <value>¡El Caminante de Hielo fue derrotado!</value>
+  </data>
+  <data name="RaklionSelupanAppeared" xml:space="preserve">
+    <value>Apareció Ulmorth. Las puertas del criadero se cierran en {0} minutos.</value>
+  </data>
+  <data name="RaklionHatcheryClosed" xml:space="preserve">
+    <value>La puerta del criadero está cerrada.</value>
+  </data>
+  <data name="RaklionHatcheryOpensIn" xml:space="preserve">
+    <value>Las puertas del criadero se abren en {0}.</value>
+  </data>
+  <data name="RaklionHatcheryIsClosed" xml:space="preserve">
+    <value>La puerta del criadero está cerrada: no podés entrar.</value>
+  </data>
+  <data name="RaklionHatcheryOpened" xml:space="preserve">
+    <value>La puerta del criadero está abierta.</value>
+  </data>
+  <data name="RaklionSelupanDefeated" xml:space="preserve">
+    <value>¡{0} derrotó a Ulmorth! Las puertas del criadero se abren en {1}.</value>
+  </data>
+  <data name="RaklionBattleFailed" xml:space="preserve">
+    <value>La batalla contra Ulmorth se perdió. Las puertas del criadero se abren en {0}.</value>
+  </data>
+  <data name="RaklionDurationHoursMinutes" xml:space="preserve">
+    <value>{0} h {1} min</value>
+  </data>
+  <data name="RaklionDurationMinutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="ImperialGuardianLevelTooLow" xml:space="preserve">
+    <value>Necesitás nivel {0} como mínimo para entrar a la Fortaleza del Guardián Imperial.</value>
+  </data>
+  <data name="GensBattleZoneMembersOnly" xml:space="preserve">
+    <value>Solo los miembros de una gens pueden entrar a la zona de batalla.</value>
+  </data>
+  <data name="GensContributionGainedFormat" xml:space="preserve">
+    <value>Ganaste {0} puntos de contribución.</value>
+  </data>
+  <data name="GensContributionLostFormat" xml:space="preserve">
+    <value>Perdiste {0} puntos de contribución.</value>
+  </data>
+  <data name="GensKillAbuseWarningFormat" xml:space="preserve">
+    <value>Mataste a {0} {1} veces en poco tiempo. A partir de {2} muertes, {0} ya no te da puntos de contribución.</value>
+  </data>
+  <data name="GensKillAbuseLimitFormat" xml:space="preserve">
+    <value>Mataste a {0} demasiadas veces en poco tiempo: ya no te da puntos de contribución.</value>
+  </data>
+  <data name="GensNoPartyWithOtherGens" xml:space="preserve">
+    <value>No podés armar un grupo con alguien de la gens rival.</value>
+  </data>
+  <data name="GensNoPartyInBattleZone" xml:space="preserve">
+    <value>No podés armar un grupo dentro de una zona de batalla.</value>
+  </data>
+  <data name="GensPartyLeftInBattleZone" xml:space="preserve">
+    <value>En una zona de batalla no hay grupos, así que saliste del tuyo.</value>
+  </data>
+  <data name="GensRequiredToCreateGuild" xml:space="preserve">
+    <value>Para fundar un clan tenés que ser miembro de una gens.</value>
+  </data>
+  <data name="EquipmentHasChangedMessage" xml:space="preserve">
+    <value>El equipo cambió.</value>
+  </data>
+  <data name="SpeedHackWarning" xml:space="preserve">
+    <value>Atención: se detectó actividad inusual (control de velocidad). Si se repite, la cuenta va a tener restricciones.</value>
+  </data>
+  <data name="SummonPartyCountdownFormat" xml:space="preserve">
+    <value>Invocación en {0} segundos...</value>
+  </data>
+  <data name="SummonPartyCanceled" xml:space="preserve">
+    <value>Invocación cancelada.</value>
+  </data>
+  <data name="CharacterInfoAccountNameFormat" xml:space="preserve">
+    <value>Cuenta: {0}</value>
+  </data>
+  <data name="CharacterInfoFormat" xml:space="preserve">
+    <value>Id: {0}
+Nombre: {1}
+Clase: {2}
+Posición en la lista: {3}
+Creado: {4}
+Exp: {5}
+Puntos por nivel: {6}
+Exp maestra: {7}
+Puntos de nivel maestro: {8}
+Lugar: {9}({10}, {11})
+Muertes: {12}
+Segundos de estado que quedan: {13}
+Estado: {14}
+Condición: {15}
+Puntos de fruta usados: {16}
+Puntos de fruta negativos usados: {17}
+Ampliaciones de inventario: {18}</value>
+  </data>
+  <data name="CrywolfNotify1" xml:space="preserve">
+    <value>Balgass se unió al ejército del Innombrado y se prepara para atacar la Fortaleza de Crywolf.</value>
+  </data>
+  <data name="CrywolfNotify2" xml:space="preserve">
+    <value>El ejército de Balgass está listo para atacar la Fortaleza de Crywolf.</value>
+  </data>
+  <data name="CrywolfReady" xml:space="preserve">
+    <value>El ejército de Balgass marcha hacia la Fortaleza de Crywolf.</value>
+  </data>
+  <data name="CrywolfStart" xml:space="preserve">
+    <value>¡El ejército de Balgass ataca la Fortaleza de Crywolf!</value>
+  </data>
+  <data name="CrywolfContractsStartInMinutes" xml:space="preserve">
+    <value>Los pactos de los altares del lobo empiezan en {0} minutos.</value>
+  </data>
+  <data name="CrywolfContractsStartInSeconds" xml:space="preserve">
+    <value>Los pactos de los altares del lobo empiezan en {0} segundos.</value>
+  </data>
+  <data name="CrywolfAttackStartsInMinutes" xml:space="preserve">
+    <value>El ejército de Balgass ataca en {0} minutos.</value>
+  </data>
+  <data name="CrywolfAttackStartsInSeconds" xml:space="preserve">
+    <value>El ejército de Balgass ataca en {0} segundos.</value>
+  </data>
+  <data name="CrywolfNoAltarContracted" xml:space="preserve">
+    <value>Sin la protección de las Musas, van a robar la estatua del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfStatueAttack" xml:space="preserve">
+    <value>¡El ejército de Balgass empieza a atacar la estatua del lobo sagrado!</value>
+  </data>
+  <data name="CrywolfBalgassAppeared" xml:space="preserve">
+    <value>¡Viene Balgass! ¡Protegé la estatua del lobo sagrado!</value>
+  </data>
+  <data name="CrywolfBalgassDefeated" xml:space="preserve">
+    <value>¡Balgass fue derrotado con la ayuda de los héroes!</value>
+  </data>
+  <data name="CrywolfBalgassAlive" xml:space="preserve">
+    <value>Balgass siguió con vida hasta el final de la batalla.</value>
+  </data>
+  <data name="CrywolfDefenseSucceeded" xml:space="preserve">
+    <value>¡La defensa fue un éxito! La estatua del lobo sagrado quedó a salvo.</value>
+  </data>
+  <data name="CrywolfDefenseFailed" xml:space="preserve">
+    <value>¡La defensa fracasó! Balgass se quedó con la estatua del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfRankResult" xml:space="preserve">
+    <value>Tu puesto de MvP es {0}. Recibiste {1} puntos de experiencia.</value>
+  </data>
+  <data name="CrywolfCurrentScore" xml:space="preserve">
+    <value>Tu puntaje de MvP es {0}.</value>
+  </data>
+  <data name="CrywolfBalgassKilled" xml:space="preserve">
+    <value>¡{0} mató a Balgass!</value>
+  </data>
+  <data name="CrywolfDarkElfKilled" xml:space="preserve">
+    <value>¡{1} mató a la líder elfa oscura ({0}) del ejército de Balgass!</value>
+  </data>
+  <data name="CrywolfContractAttempt" xml:space="preserve">
+    <value>¡{0} intenta hacer el pacto con el altar ({1})!</value>
+  </data>
+  <data name="CrywolfContractAttemptInfo" xml:space="preserve">
+    <value>El pacto vale en {0} segundos. No te muevas hasta que termine.</value>
+  </data>
+  <data name="CrywolfContractValid" xml:space="preserve">
+    <value>Quedaste conectada al altar ({0}) del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfContractValidToOthers" xml:space="preserve">
+    <value>{0} conectó a la Musa con el altar ({1}) del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfContractCancelled" xml:space="preserve">
+    <value>Se canceló la conexión con el altar ({0}).</value>
+  </data>
+  <data name="CrywolfAltarCooldown" xml:space="preserve">
+    <value>Todavía no se puede hacer el pacto con el altar ({0}) del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfContractWrongPosition" xml:space="preserve">
+    <value>Tenés que pararte sobre el altar ({0}) del lobo sagrado para hacer el pacto.</value>
+  </data>
+  <data name="CrywolfContractRequirement" xml:space="preserve">
+    <value>Para hacer el pacto con un altar hace falta una Musa de nivel {0} o más.</value>
+  </data>
+  <data name="CrywolfBarrierCreated" xml:space="preserve">
+    <value>Se levantó la barrera de la estatua del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfBarrierDisappeared" xml:space="preserve">
+    <value>Desapareció la barrera de la estatua del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfBarrierStatus" xml:space="preserve">
+    <value>Musas que protegen la estatua del lobo sagrado: {0}, barrera: {1}%.</value>
+  </data>
+  <data name="CrywolfBattleOnOtherServer" xml:space="preserve">
+    <value>La batalla de la Fortaleza de Crywolf es en otro server.</value>
+  </data>
+  <data name="CrywolfRunsOnOtherServer" xml:space="preserve">
+    <value>El evento de Crywolf corre en el server {0}.</value>
+  </data>
+  <data name="CrywolfNotActive" xml:space="preserve">
+    <value>El evento de Crywolf no está activo.</value>
+  </data>
+  <data name="CrywolfProceeds" xml:space="preserve">
+    <value>El evento de Crywolf sigue desde el estado {0}.</value>
+  </data>
+  <data name="CrywolfAltarNotAvailable" xml:space="preserve">
+    <value>Ahora no se puede hacer el pacto con el altar ({0}) del lobo sagrado.</value>
+  </data>
+  <data name="CrywolfContractMounted" xml:space="preserve">
+    <value>No se puede hacer el pacto con un altar sobre una montura.</value>
+  </data>
+  <data name="GoblinPointsForPlayTime" xml:space="preserve">
+    <value>Recibiste {0} Puntos Goblin por tu tiempo de juego.</value>
+  </data>
+  <data name="CashShopVaultExtended" xml:space="preserve">
+    <value>Tu baúl se amplió.</value>
+  </data>
+  <data name="CashShopInventoryExtended" xml:space="preserve">
+    <value>Tu inventario se amplió. Volvé a elegir tu personaje para usar el lugar nuevo.</value>
+  </data>
+  <data name="CashShopCharacterClassUnlocked" xml:space="preserve">
+    <value>Ya podés crear un personaje de la clase {0}.</value>
+  </data>
+  <data name="ShopCurrencyZen" xml:space="preserve">
+    <value>Coronas</value>
+  </data>
+  <data name="ShopCurrencyWCoinC" xml:space="preserve">
+    <value>WCoin (C)</value>
+  </data>
+  <data name="ShopCurrencyWCoinP" xml:space="preserve">
+    <value>WCoin (P)</value>
+  </data>
+  <data name="ShopCurrencyGoblinPoints" xml:space="preserve">
+    <value>Puntos Goblin</value>
+  </data>
+  <data name="PlayerShopCurrencyNotAllowed" xml:space="preserve">
+    <value>En las tiendas personales no se aceptan precios en {0}.</value>
+  </data>
+  <data name="PlayerShopPriceTooHigh" xml:space="preserve">
+    <value>El precio puede ser de hasta {0} {1}.</value>
+  </data>
+  <data name="PlayerShopNotEnoughCurrency" xml:space="preserve">
+    <value>Necesitás {0} {1} para comprar este item.</value>
+  </data>
+  <data name="PlayerShopItemPriceNotPayableExactly" xml:space="preserve">
+    <value>Tus items no pueden pagar exactamente {0} {1}. Los paquetes no se abren y no hay vuelto.</value>
+  </data>
+  <data name="PlayerShopCoinsReceived" xml:space="preserve">
+    <value>Recibiste {0} {1} por un item de tu tienda.</value>
+  </data>
+  <data name="PlayerShopCoinsPaid" xml:space="preserve">
+    <value>Pagaste {0} {1}.</value>
+  </data>
+  <data name="PlayerShopPriceCommandUsage" xml:space="preserve">
+    <value>Uso: {0} [posición 1-32] [cantidad] [moneda]. Sin argumentos, muestra los precios de tu tienda.</value>
+  </data>
+  <data name="PlayerShopUnknownCurrency" xml:space="preserve">
+    <value>Moneda desconocida: '{0}'. Disponibles: {1}.</value>
+  </data>
+  <data name="PlayerShopCloseToChangePrices" xml:space="preserve">
+    <value>Cerrá tu tienda para cambiar los precios.</value>
+  </data>
+  <data name="PlayerShopPriceSet" xml:space="preserve">
+    <value>El precio del item en la posición {0} ahora es {1} {2}.</value>
+  </data>
+  <data name="PlayerShopPriceRemoved" xml:space="preserve">
+    <value>Se sacó el precio del item en la posición {0}.</value>
+  </data>
+  <data name="PlayerShopPriceItemNotFound" xml:space="preserve">
+    <value>Tu tienda no tiene ningún item en la posición {0}.</value>
+  </data>
+  <data name="PlayerShopPriceLevelTooLow" xml:space="preserve">
+    <value>Te falta nivel para vender en una tienda personal.</value>
+  </data>
+  <data name="PlayerShopIsEmpty" xml:space="preserve">
+    <value>Tu tienda está vacía.</value>
+  </data>
+  <data name="PlayerShopPriceListEntry" xml:space="preserve">
+    <value>#{0} {1} - {2} {3}</value>
+  </data>
+  <data name="PlayerShopPriceListEntryWithoutPrice" xml:space="preserve">
+    <value>#{0} {1} - sin precio</value>
+  </data>
+  <data name="ItemBoxRequiresLevel" xml:space="preserve">
+    <value>Necesitás nivel {0} para abrir esta caja.</value>
+  </data>
+  <data name="DiscordLinkCode" xml:space="preserve">
+    <value>Tu código para vincular Discord es {0}. En Discord, elegí el comando /link del bot en la lista y escribí el código en menos de {1} minutos.</value>
+  </data>
+  <data name="DiscordLinked" xml:space="preserve">
+    <value>Tu cuenta está vinculada al usuario de Discord {0}, que aparece como {1}. Usá /discord unlink para desvincularla.</value>
+  </data>
+  <data name="DiscordNotLinked" xml:space="preserve">
+    <value>Tu cuenta no está vinculada a Discord. Usá /discord link para conseguir un código.</value>
+  </data>
+  <data name="DiscordUnlinked" xml:space="preserve">
+    <value>Tu cuenta ya no está vinculada a Discord.</value>
+  </data>
+  <data name="WorldChatMessage" xml:space="preserve">
+    <value>[Mundo] {0}: {1}</value>
+  </data>
+  <data name="GuildChatMirrored" xml:space="preserve">
+    <value>El chat de tu clan se copia en Discord. Los miembros que vincularon su usuario de Discord pueden leerlo y escribir ahí.</value>
+  </data>
+  <data name="AllianceChatMirrored" xml:space="preserve">
+    <value>El chat de tu alianza se copia en Discord. Los miembros que vincularon su usuario de Discord pueden leerlo y escribir ahí.</value>
+  </data>
+  <data name="DiscordNotifications" xml:space="preserve">
+    <value>Mensajes directos en Discord sobre: {0}. Se activan o desactivan con /discord notify login, letter o friend.</value>
+  </data>
+  <data name="MapIsNotActive" xml:space="preserve">
+    <value>Este mapa no está disponible.</value>
+  </data>
+  <data name="NpcHasNoQuestsForYou" xml:space="preserve">
+    <value>No tengo misiones para vos.</value>
+  </data>
+  <data name="NpcHasNothingYetComeBackStronger" xml:space="preserve">
+    <value>No tengo nada para vos. Volvé cuando seas más fuerte.</value>
+  </data>
+  <data name="NpcHasNothingAllQuestsSolved" xml:space="preserve">
+    <value>No tengo nada para vos. Ya cumpliste todas mis misiones.</value>
+  </data>
+  <data name="GuildCreationLevelTooLowFormat" xml:space="preserve">
+    <value>Necesitás nivel {0} como mínimo.</value>
+  </data>
+  <data name="AlreadyBelongToGuild" xml:space="preserve">
+    <value>Ya sos parte de un clan.</value>
+  </data>
+  <data name="WarpLevelTooLowFormat" xml:space="preserve">
+    <value>Necesitás nivel {0} para viajar ahí.</value>
+  </data>
+  <data name="WarpTargetNotInitialized" xml:space="preserve">
+    <value>Ese destino no está disponible.</value>
+  </data>
+  <data name="WarpNotEnoughMoneyFormat" xml:space="preserve">
+    <value>Necesitás {0} Coronas para viajar ahí.</value>
+  </data>
+</root>
