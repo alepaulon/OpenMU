@@ -53,6 +53,12 @@ internal sealed class PlayerMovement : IDisposable
     /// </summary>
     private const double UnchargedCorrectionRecoveryFactor = 0.5;
 
+    /// <summary>
+    /// How many steps per tile of the allowed walk start offset a client position may need from the server position.
+    /// A lagging client walks around corners, so it's more than the straight line; a wall is more than this.
+    /// </summary>
+    private const double WalkStartDetourFactor = 2.0;
+
     private readonly Player _player;
 
     private readonly object _correctionLock = new();
@@ -293,6 +299,56 @@ internal sealed class PlayerMovement : IDisposable
         this._walker.Dispose();
     }
 
+    /// <summary>
+    /// Determines whether a tile can be reached from another one through walkable tiles, in at most the given
+    /// number of steps. Like a walk request, it only looks at the tiles it steps on: the pathfinding of the game
+    /// client also goes diagonally between two blocked corners.
+    /// </summary>
+    /// <param name="terrain">The terrain.</param>
+    /// <param name="start">The start.</param>
+    /// <param name="target">The target.</param>
+    /// <param name="maximumSteps">The maximum number of steps.</param>
+    /// <returns><c>True</c>, if the target can be reached; Otherwise, <c>false</c>.</returns>
+    private static bool IsReachableOnFoot(GameMapTerrain terrain, Point start, Point target, int maximumSteps)
+    {
+        var visited = new HashSet<Point> { start };
+        var frontier = new List<Point> { start };
+        for (var step = 0; step < maximumSteps && frontier.Count > 0; step++)
+        {
+            var next = new List<Point>();
+            foreach (var point in frontier)
+            {
+                for (var dx = -1; dx <= 1; dx++)
+                {
+                    for (var dy = -1; dy <= 1; dy++)
+                    {
+                        var x = point.X + dx;
+                        var y = point.Y + dy;
+                        if (x < 0 || y < 0 || x >= terrain.WalkMap.GetLength(0) || y >= terrain.WalkMap.GetLength(1) || !terrain.WalkMap[x, y])
+                        {
+                            continue;
+                        }
+
+                        var neighbour = new Point((byte)x, (byte)y);
+                        if (neighbour == target)
+                        {
+                            return true;
+                        }
+
+                        if (visited.Add(neighbour))
+                        {
+                            next.Add(neighbour);
+                        }
+                    }
+                }
+            }
+
+            frontier = next;
+        }
+
+        return false;
+    }
+
     private static int GetWalkableStepCount(GameMapTerrain terrain, ReadOnlySpan<WalkingStep> steps)
     {
         for (var index = 0; index < steps.Length; index++)
@@ -515,6 +571,17 @@ internal sealed class PlayerMovement : IDisposable
         {
             this._player.Logger.LogWarning(
                 "Client reported a walk position on blocked terrain ({0}); keeping the server position at {1}.",
+                clientPosition,
+                this._player.Position);
+            return false;
+        }
+
+        // A position of the running walk has been checked step by step. Any other one has to be reachable from where
+        // we have the player, or a client could claim the tile on the far side of a wall.
+        if (!isOnCurrentWalk && !IsReachableOnFoot(currentMap.Terrain, this._player.Position, clientPosition, (int)Math.Ceiling(maxOffset * WalkStartDetourFactor)))
+        {
+            this._player.Logger.LogWarning(
+                "Client reported a walk position {0} which can't be reached on foot from the server position {1}. Keeping the server position.",
                 clientPosition,
                 this._player.Position);
             return false;

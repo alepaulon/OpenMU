@@ -113,6 +113,62 @@ public class SpeedHackAntiCheatTests
     }
 
     /// <summary>
+    /// Tests that a start tile on the far side of a wall isn't adopted, although it's within the allowed offset.
+    /// </summary>
+    [Test]
+    public async Task TestWalkStartBehindWallDoesNotMovePlayerAsync()
+    {
+        var player = await CreatePlayerWithSpeedAttributesAsync().ConfigureAwait(false);
+        player.Position = StartPoint;
+        var terrain = player.CurrentMap!.Terrain;
+        for (var y = 0; y < 256; y++)
+        {
+            terrain.WalkMap[StartPoint.X + 2, y] = false;
+        }
+
+        var claimed = new Point((byte)(StartPoint.X + 4), StartPoint.Y);
+        var target = new Point((byte)(claimed.X + 1), claimed.Y);
+        WalkingStep[] steps = [new() { From = claimed, To = target, Direction = Direction.East }];
+
+        await player.WalkToAsync(target, steps).ConfigureAwait(false);
+
+        var objectMovedPlugIn = player.ViewPlugIns.GetPlugIn<IObjectMovedPlugIn>();
+        Mock.Get<IObjectMovedPlugIn>(objectMovedPlugIn!).Verify(m => m.ObjectMovedAsync(player, MoveType.Instant), Times.Once);
+        Assert.Multiple(() =>
+        {
+            Assert.That(player.Position, Is.EqualTo(StartPoint));
+            Assert.That(player.IsWalking, Is.False);
+        });
+    }
+
+    /// <summary>
+    /// Tests that a lagging client which went around a short wall, and one on open ground, keep their position.
+    /// </summary>
+    /// <param name="wallHalfLength">How far the wall goes to each side; 0 for no wall.</param>
+    [TestCase(0)]
+    [TestCase(1)]
+    public async Task TestWalkStartReachableOnFootIsAdoptedAsync(int wallHalfLength)
+    {
+        var player = await CreatePlayerWithSpeedAttributesAsync().ConfigureAwait(false);
+        player.Position = StartPoint;
+        var terrain = player.CurrentMap!.Terrain;
+        for (var y = -wallHalfLength; y <= wallHalfLength && wallHalfLength > 0; y++)
+        {
+            terrain.WalkMap[StartPoint.X + 2, StartPoint.Y + y] = false;
+        }
+
+        var claimed = new Point((byte)(StartPoint.X + 4), StartPoint.Y);
+        var target = new Point((byte)(claimed.X + 1), claimed.Y);
+        WalkingStep[] steps = [new() { From = claimed, To = target, Direction = Direction.East }];
+
+        await player.WalkToAsync(target, steps).ConfigureAwait(false);
+
+        var objectMovedPlugIn = player.ViewPlugIns.GetPlugIn<IObjectMovedPlugIn>();
+        Mock.Get<IObjectMovedPlugIn>(objectMovedPlugIn!).Verify(m => m.ObjectMovedAsync(player, MoveType.Instant), Times.Never);
+        Assert.That(player.IsWalking || player.Position == target, Is.True);
+    }
+
+    /// <summary>
     /// Tests that walking in a safe zone does not trigger speed hack warnings/violations.
     /// </summary>
     [Test]
