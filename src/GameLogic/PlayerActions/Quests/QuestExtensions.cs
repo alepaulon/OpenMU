@@ -20,7 +20,8 @@ public static class QuestExtensions
     {
         questState.ActiveQuest = null;
         questState.ClientActionPerformed = false;
-        foreach (var requirementState in questState.RequirementStates)
+        // Deleting a state which isn't saved yet removes it from this collection right away, so it needs a copy.
+        foreach (var requirementState in questState.RequirementStates.ToList())
         {
             await persistenceContext.DeleteAsync(requirementState).ConfigureAwait(false);
         }
